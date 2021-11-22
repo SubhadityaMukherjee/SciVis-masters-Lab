@@ -6,6 +6,11 @@ __pycache__/
 # C extensions
 *.so
 
+# Personal ones
+
+build-Smoke-Desktop-Debug/
+build-Smoke-Desktop-Debug/*
+
 # Distribution / packaging
 .Python
 build/

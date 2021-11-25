@@ -505,9 +505,14 @@ void Visualization::applyQuantization(std::vector<float> &scalarValues)
     // Apply quantization to std::vector<unsigned int> image here.
     // The variable m_quantizationBits ('n' in the lecture slides) is set in the GUI and can be used here.
     // L needs to be set to the appropriate value and will be used to set the clamping range in the GUI.
-    // ..
+    unsigned int const L = pow(2, m_quantizationBits) - 1; // The number of colors that will be used to visualize the image.
+    float const colorRange = 255.0F / (float)(L + 1); // The range of each color, i.e. the subset of the range [0, 255] that represents one color.
 
-    unsigned int const L = pow(2, m_quantizationBits) -1; //done
+    for (size_t i = 0; i < image.size(); ++i) {
+        unsigned int colorIdx = (unsigned int) ( ((float) image[i]) / colorRange );
+        if (colorIdx > L) colorIdx = L; // Set values of 255 to the last color.
+        image[i] = colorIdx;
+    }
 
     // Convert the image's data back to floating point values, so that it can be processed as usual.
     scalarValues = std::vector<float>{image.cbegin(), image.cend()};

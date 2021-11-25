@@ -18,51 +18,11 @@ void MainWindow::updateScalarDataColorMapGlobally() const
     scalarDataLegendPtr->updateColorMap(colorMapToUse);
 }
 
-
 // Scalar data, draw on/off.
 void MainWindow::on_scalarDataDrawScalarDataCheckBox_toggled(bool checked)
 {
     auto const openGLWidgetPtr = findChildSafe<Visualization*>("visualizationOpenGLWidget");
     openGLWidgetPtr->m_drawScalarData = checked;
-}
-
-void MainWindow::on_scalarDataslicingEnableCheckBox_toggled(bool checked)
-{
-    auto const openGLWidgetPtr = findChildSafe<Visualization*>("visualizationOpenGLWidget");
-    openGLWidgetPtr->m_useSlicing = checked;
-}
-
-void MainWindow::on_scalarDataSlicingDirectionXRadioButton_toggled(bool checked)
-{
-    if (checked)
-    {
-        auto const visualizationPtr = findChildSafe<Visualization*>("visualizationOpenGLWidget");
-        visualizationPtr->m_slicingDirection = Visualization::SlicingDirection::x;
-    }
-}
-
-void MainWindow::on_scalarDataSlicingDirectionYRadioButton_toggled(bool checked)
-{
-    if (checked)
-    {
-        auto const visualizationPtr = findChildSafe<Visualization*>("visualizationOpenGLWidget");
-        visualizationPtr->m_slicingDirection = Visualization::SlicingDirection::y;
-    }
-}
-
-void MainWindow::on_scalarDataSlicingDirectionTRadioButton_toggled(bool checked)
-{
-    if (checked)
-    {
-        auto const visualizationPtr = findChildSafe<Visualization*>("visualizationOpenGLWidget");
-        visualizationPtr->m_slicingDirection = Visualization::SlicingDirection::t;
-    }
-}
-
-void MainWindow::on_scalarDataSlicingSliceIndexSpinBox_valueChanged(int arg1)
-{
-    auto const visualizationPtr = findChildSafe<Visualization*>("visualizationOpenGLWidget");
-    visualizationPtr->m_sliceIdx = static_cast<size_t>(arg1);
 }
 
 // Scalar data, data type.
@@ -85,15 +45,14 @@ void MainWindow::on_scalarDataComboBox_currentIndexChanged(int index)
         break;
 
         case 3:
-            qDebug() << "Velocity divergence not implemented";
+            visualizationPtr->m_currentScalarDataType = ScalarDataType::VelocityDivergence;
         break;
 
         case 4:
-            qDebug() << "Force field divergence not implemented";
+            visualizationPtr->m_currentScalarDataType = ScalarDataType::ForceFieldDivergence;
         break;
     }
 }
-
 
 // Scalar data, color map.
 void MainWindow::on_scalarDataColorMapComboBox_currentIndexChanged(int index)
@@ -154,9 +113,13 @@ void MainWindow::on_scalarDataCustomColorPickerPushButton_clicked()
     QColor const colorFromUI = QColorDialog::getColor(previousColor, this);
     if (colorFromUI.isValid())
     {
-        double r, g, b;
-        colorFromUI.getRgbF(&r, &g, &b);
-        Color const customColor{static_cast<float>(r), static_cast<float>(g), static_cast<float>(b)};
+        // qreal r, g, b;
+        // colorFromUI.getRgbF(&r, &g, &b);
+        // Color const customColor{static_cast<float>(r), static_cast<float>(g), static_cast<float>(b)};
+	
+        Color const customColor{static_cast<float>(colorFromUI.redF()),
+                    static_cast<float>(colorFromUI.greenF()),
+                    static_cast<float>(colorFromUI.blueF())};
 	
         *selectedColorPtr = customColor;
 

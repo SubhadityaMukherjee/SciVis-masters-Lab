@@ -100,9 +100,8 @@ void Simulation::solve()
     float * const vx0 = m_vx0.data();
     float * const vy0 = m_vy0.data();
 
-    // TODO: Create better scoping for these variables.
     float x, y, x0, y0, f, r, U[2], V[2], s, t;
-    int i, j, i0, j0, i1, j1; // TODO: Making these size_t's somehow doesn't work?
+    int i, j, i0, j0, i1, j1;
 
     auto const applyTimeStep = [=](float const v, float const v0) { return v + m_dt * v0; };
     std::transform(vx, vx + m_numberOfSamples, vx0, vx, applyTimeStep);
@@ -348,7 +347,7 @@ void Simulation::setDIM(size_t const DIM)
     initializeDimensions(DIM);
     destructFftw();
     initializeDataStructures();
-    resetData(); // TODO: Could be redundant as 0.0F is also passed to resize().
+    resetData(); // TODO: Could be slightly redundant as 0.0F is also passed to resize().
 }
 
 void Simulation::setDt(float const dt)

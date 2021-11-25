@@ -23,7 +23,7 @@ public:
     ~MainWindow();
 
 private slots:
-    // Simulation, show minimum/maximum values of scalar data.
+    // Simulation, show minimum/maximum values of scalar and vector data.
     void on_showMinMaxDataCheckBox_toggled(bool checked);
 
     // Simulation, density injected fluid.
@@ -43,6 +43,13 @@ private slots:
 
     // Simulation, run simulation.
     void on_pausePlayButton_clicked();
+
+    // Preprocessing
+    void on_quantizationCheckBox_toggled(bool checked);
+    void on_quantizationBitsComboBox_currentIndexChanged(int index);
+
+    void on_gaussianBlurCheckBox_toggled(bool checked);
+    void on_gradientsCheckBox_toggled(bool checked);
 
     // Scalar data, draw true/false.
     void on_scalarDataDrawScalarDataCheckBox_toggled(bool checked);
@@ -81,9 +88,53 @@ private slots:
     void on_scalarDataMappingTransferKSlider_valueChanged(int value);
     void on_scalarDataMappingTransferKSpinBox_valueChanged(double value);
 
+
+    // Isolines, draw on/off.
+    void on_isolinesDrawIsolinesCheckBox_toggled(bool checked);
+
+    // Isolines, color picker.
+    void on_isolinesColorPickerButton_clicked();
+
+    // Isolines, use same data as current scalar data or manually choose data.
+    void on_isolinesUseCurrentScalarDataCheckBox_toggled(bool checked);
+
+    // Isolines, scalar data type used for isolines.
+    void on_isolinesDataComboBox_currentIndexChanged(int index);
+
+    // Isolines, number of isolines.
+    void on_isolinesNumberOfIsolinesSpinBox_valueChanged(int value);
+
+    // Isolines, range.
+    void on_isolinesRangeRhoMinSpinBox_valueChanged(double value);
+    void on_isolinesRangeRhoMaxSpinBox_valueChanged(double value);
+    void on_isolinesRangeRhoMinSlider_valueChanged(int value);
+    void on_isolinesRangeRhoMaxSlider_valueChanged(int value);
+
+    void on_isolinesInterpolationMethodLinearRadioButton_toggled(bool checked);
+    void on_isolinesInterpolationMethodNoneRadioButton_toggled(bool checked);
+
+    // Heightplot, draw on/off.
+    void on_showHeightplotCheckBox_toggled(bool checked);
+
+    // Heightplot, scalar data type used for height.
+    void on_heightplotDataTypeComboBox_currentIndexChanged(int index);
+
+    // Heightplot, rotate view along X-axis.
+    void on_heightplotViewRotateX_valueChanged(int value);
+
+    // Heightplot, rotate view along Y-axis.
+    void on_heightplotViewRotateY_valueChanged(int value);
+
+    // Heightplot, rotate view along Z-axis.
+    void on_heightplotViewRotateZ_valueChanged(int value);
+
+    // Heightplot, reset rotation.
+    void on_heightplotResetRotation_clicked();
+
     // Setters
     void setScalarDataMin(float const min);
     void setScalarDataMax(float const max);
+
 
 private:
     Ui::MainWindow *ui;
@@ -92,8 +143,13 @@ private:
     size_t m_numberOfColorsScalarData = 256U;
     std::vector<Color> m_defaultScalarDataColorMap = Texture::createGrayscaleTexture(m_numberOfColorsScalarData);
 
+    ColorMap m_vectorDataColorMap = ColorMap::Grayscale;
+    size_t m_numberOfColorsVectorData = 256U;
+    std::vector<Color> m_defaultVectorDataColorMap = Texture::createGrayscaleTexture(m_numberOfColorsScalarData);
+
     std::vector<Color> enumToColorMap(ColorMap const colorMap, size_t numberOfColors) const;
     void updateScalarDataColorMapGlobally() const;
+    void updateVectorDataColorMapGlobally() const;
 
     template <class T> T findChildSafe(QString const &widgetName) const;
 };

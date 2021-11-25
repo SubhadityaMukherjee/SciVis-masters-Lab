@@ -291,6 +291,178 @@
         </item>
        </layout>
       </widget>
+      <widget class="QWidget" name="tab">
+       <attribute name="title">
+        <string>Preprocessing</string>
+       </attribute>
+       <layout class="QVBoxLayout" name="verticalLayout_14">
+        <item>
+         <widget class="QGroupBox" name="quantizationGroupBox">
+          <property name="title">
+           <string>Quantization</string>
+          </property>
+          <layout class="QHBoxLayout" name="horizontalLayout_12">
+           <item>
+            <widget class="QCheckBox" name="quantizationCheckBox">
+             <property name="text">
+              <string>Enable quantization</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLabel" name="quantizationNumberOfBitsLabel">
+             <property name="text">
+              <string>Number of bits:</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QComboBox" name="quantizationBitsComboBox">
+             <property name="currentIndex">
+              <number>0</number>
+             </property>
+             <item>
+              <property name="text">
+               <string>1</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>2</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>4</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>8</string>
+              </property>
+             </item>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+        </item>
+        <item>
+         <widget class="QGroupBox" name="gaussianBlurGroupBox">
+          <property name="title">
+           <string>Gaussian blur</string>
+          </property>
+          <layout class="QHBoxLayout" name="horizontalLayout_14">
+           <item>
+            <widget class="QCheckBox" name="gaussianBlurCheckBox">
+             <property name="text">
+              <string>Enable Gaussian blur</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+        </item>
+        <item>
+         <widget class="QGroupBox" name="gradientsGroupBox">
+          <property name="title">
+           <string>Gradient magnitudes</string>
+          </property>
+          <layout class="QHBoxLayout" name="horizontalLayout_13">
+           <item>
+            <widget class="QCheckBox" name="gradientsCheckBox">
+             <property name="text">
+              <string>Enable scalar grid to gradient magnitudes mapping</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+        </item>
+        <item>
+         <widget class="QGroupBox" name="scalarDataSlicingGroupBox">
+          <property name="title">
+           <string>Slicing</string>
+          </property>
+          <layout class="QGridLayout" name="gridLayout_2">
+           <item row="1" column="4">
+            <widget class="QRadioButton" name="scalarDataSlicingDirectionYRadioButton">
+             <property name="text">
+              <string>y</string>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="4" colspan="2">
+            <widget class="QSpinBox" name="scalarDataSlicingSliceIndexSpinBox">
+             <property name="maximum">
+              <number>63</number>
+             </property>
+             <property name="singleStep">
+              <number>1</number>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="2">
+            <widget class="QLabel" name="scalarDataSlicingSliceIndexLabel">
+             <property name="text">
+              <string>Slice index:</string>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="2">
+            <widget class="QLabel" name="scalarDataSlicingDirectionLabel">
+             <property name="text">
+              <string>Direction:</string>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="3">
+            <widget class="QRadioButton" name="scalarDataSlicingDirectionXRadioButton">
+             <property name="text">
+              <string>x</string>
+             </property>
+             <property name="checked">
+              <bool>true</bool>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="1">
+            <widget class="QCheckBox" name="scalarDataslicingEnableCheckBox">
+             <property name="text">
+              <string>Enable slicing</string>
+             </property>
+             <property name="checked">
+              <bool>false</bool>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="5">
+            <widget class="QRadioButton" name="scalarDataSlicingDirectionTRadioButton">
+             <property name="text">
+              <string>t</string>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="3">
+            <widget class="QSlider" name="scalarDataSlicingSliceIndexHorizontalSlider">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="maximum">
+              <number>63</number>
+             </property>
+             <property name="orientation">
+              <enum>Qt::Horizontal</enum>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+        </item>
+       </layout>
+      </widget>
       <widget class="QWidget" name="scalarDataSettingsPage">
        <property name="autoFillBackground">
         <bool>true</bool>
@@ -348,89 +520,6 @@
                <string>Force field divergence</string>
               </property>
              </item>
-            </widget>
-           </item>
-          </layout>
-         </widget>
-        </item>
-        <item>
-         <widget class="QGroupBox" name="scalarDataSlicingGroupBox">
-          <property name="title">
-           <string>Slicing</string>
-          </property>
-          <layout class="QGridLayout" name="gridLayout_2">
-           <item row="0" column="3">
-            <widget class="QRadioButton" name="scalarDataSlicingDirectionXRadioButton">
-             <property name="text">
-              <string>x</string>
-             </property>
-             <property name="checked">
-              <bool>true</bool>
-             </property>
-            </widget>
-           </item>
-           <item row="0" column="1">
-            <widget class="QCheckBox" name="scalarDataslicingEnableCheckBox">
-             <property name="text">
-              <string>Enable slicing</string>
-             </property>
-             <property name="checked">
-              <bool>false</bool>
-             </property>
-            </widget>
-           </item>
-           <item row="0" column="2">
-            <widget class="QLabel" name="scalarDataSlicingDirectionLabel">
-             <property name="text">
-              <string>Direction:</string>
-             </property>
-            </widget>
-           </item>
-           <item row="0" column="4">
-            <widget class="QRadioButton" name="scalarDataSlicingDirectionYRadioButton">
-             <property name="text">
-              <string>y</string>
-             </property>
-            </widget>
-           </item>
-           <item row="0" column="5">
-            <widget class="QRadioButton" name="scalarDataSlicingDirectionTRadioButton">
-             <property name="text">
-              <string>t</string>
-             </property>
-            </widget>
-           </item>
-           <item row="1" column="2">
-            <widget class="QLabel" name="scalarDataSlicingSliceIndexLabel">
-             <property name="text">
-              <string>Slice index:</string>
-             </property>
-            </widget>
-           </item>
-           <item row="1" column="4" colspan="2">
-            <widget class="QSpinBox" name="scalarDataSlicingSliceIndexSpinBox">
-             <property name="maximum">
-              <number>63</number>
-             </property>
-             <property name="singleStep">
-              <number>1</number>
-             </property>
-            </widget>
-           </item>
-           <item row="1" column="3">
-            <widget class="QSlider" name="scalarDataSlicingSliceIndexHorizontalSlider">
-             <property name="sizePolicy">
-              <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-               <horstretch>0</horstretch>
-               <verstretch>0</verstretch>
-              </sizepolicy>
-             </property>
-             <property name="maximum">
-              <number>63</number>
-             </property>
-             <property name="orientation">
-              <enum>Qt::Horizontal</enum>
-             </property>
             </widget>
            </item>
           </layout>
@@ -751,7 +840,7 @@
               <item row="0" column="1" rowspan="2">
                <widget class="QDoubleSpinBox" name="scalarDataMappingClampingMinDoubleSpinBox">
                 <property name="maximum">
-                 <double>10.000000000000000</double>
+                 <double>255.000000000000000</double>
                 </property>
                 <property name="singleStep">
                  <double>0.010000000000000</double>
@@ -767,7 +856,7 @@
                  </sizepolicy>
                 </property>
                 <property name="maximum">
-                 <number>1000</number>
+                 <number>25500</number>
                 </property>
                 <property name="orientation">
                  <enum>Qt::Horizontal</enum>
@@ -784,13 +873,13 @@
               <item row="2" column="1" rowspan="2">
                <widget class="QDoubleSpinBox" name="scalarDataMappingClampingMaxDoubleSpinBox">
                 <property name="maximum">
-                 <double>10.000000000000000</double>
+                 <double>255.000000000000000</double>
                 </property>
                 <property name="singleStep">
                  <double>0.010000000000000</double>
                 </property>
                 <property name="value">
-                 <double>10.000000000000000</double>
+                 <double>1.000000000000000</double>
                 </property>
                </widget>
               </item>
@@ -800,10 +889,10 @@
                  <number>1</number>
                 </property>
                 <property name="maximum">
-                 <number>1000</number>
+                 <number>25500</number>
                 </property>
                 <property name="value">
-                 <number>1000</number>
+                 <number>1</number>
                 </property>
                 <property name="orientation">
                  <enum>Qt::Horizontal</enum>
@@ -828,6 +917,9 @@
               </item>
               <item>
                <widget class="QSpinBox" name="scalarDataMappingScalingMovingAverageWindowSpinBox">
+                <property name="enabled">
+                 <bool>false</bool>
+                </property>
                 <property name="minimum">
                  <number>1</number>
                 </property>
@@ -843,6 +935,414 @@
             </widget>
            </item>
           </layout>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+      <widget class="QWidget" name="isolinesSettingsPage">
+       <property name="autoFillBackground">
+        <bool>true</bool>
+       </property>
+       <attribute name="title">
+        <string>Isolines</string>
+       </attribute>
+       <layout class="QVBoxLayout" name="verticalLayout_2">
+        <item>
+         <widget class="QGroupBox" name="isolinesDrawSettingsGroupBox">
+          <property name="maximumSize">
+           <size>
+            <width>16777215</width>
+            <height>70</height>
+           </size>
+          </property>
+          <property name="title">
+           <string/>
+          </property>
+          <layout class="QHBoxLayout" name="horizontalLayout_9">
+           <item>
+            <widget class="QCheckBox" name="isolinesDrawIsolinesCheckBox">
+             <property name="text">
+              <string>Draw isolines</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QPushButton" name="isolinesColorPickerButton">
+             <property name="maximumSize">
+              <size>
+               <width>200</width>
+               <height>16777215</height>
+              </size>
+             </property>
+             <property name="text">
+              <string>Pick a color...</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+        </item>
+        <item>
+         <widget class="QCheckBox" name="isolinesUseCurrentScalarDataCheckBox">
+          <property name="text">
+           <string>Use same data as current scalar data</string>
+          </property>
+          <property name="checked">
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QGroupBox" name="isolinesDataGroupBox">
+          <property name="maximumSize">
+           <size>
+            <width>16777215</width>
+            <height>80</height>
+           </size>
+          </property>
+          <property name="title">
+           <string>Data used to draw isolines</string>
+          </property>
+          <layout class="QVBoxLayout" name="verticalLayout_12">
+           <item>
+            <widget class="QComboBox" name="isolinesDataComboBox">
+             <property name="enabled">
+              <bool>false</bool>
+             </property>
+             <item>
+              <property name="text">
+               <string>Density</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>Velocity magnitude</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>Force field magnitude</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>Velocity divergence</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>Force field divergence</string>
+              </property>
+             </item>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+        </item>
+        <item>
+         <widget class="QGroupBox" name="isolinesInterpolationMethodGroupBox">
+          <property name="maximumSize">
+           <size>
+            <width>16777215</width>
+            <height>80</height>
+           </size>
+          </property>
+          <property name="title">
+           <string>Interpolation method</string>
+          </property>
+          <layout class="QHBoxLayout" name="horizontalLayout_5">
+           <item>
+            <widget class="QRadioButton" name="isolinesInterpolationMethodLinearRadioButton">
+             <property name="text">
+              <string>Linear</string>
+             </property>
+             <property name="checked">
+              <bool>true</bool>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QRadioButton" name="isolinesInterpolationMethodNoneRadioButton">
+             <property name="text">
+              <string>None</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+        </item>
+        <item>
+         <widget class="QGroupBox" name="isolinesNumberOfIsolinesGroupBox">
+          <property name="maximumSize">
+           <size>
+            <width>16777215</width>
+            <height>80</height>
+           </size>
+          </property>
+          <property name="title">
+           <string>Number of isolines</string>
+          </property>
+          <layout class="QHBoxLayout" name="horizontalLayout_7">
+           <item>
+            <widget class="QSlider" name="isolinesNumberOfIsolinesSlider">
+             <property name="minimum">
+              <number>1</number>
+             </property>
+             <property name="maximum">
+              <number>20</number>
+             </property>
+             <property name="orientation">
+              <enum>Qt::Horizontal</enum>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QSpinBox" name="isolinesNumberOfIsolinesSpinBox">
+             <property name="minimum">
+              <number>1</number>
+             </property>
+             <property name="maximum">
+              <number>20</number>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+        </item>
+        <item>
+         <widget class="QGroupBox" name="isolinesRangeGroupBox">
+          <property name="maximumSize">
+           <size>
+            <width>16777215</width>
+            <height>150</height>
+           </size>
+          </property>
+          <property name="title">
+           <string>Range</string>
+          </property>
+          <layout class="QFormLayout" name="formLayout_6">
+           <item row="1" column="0">
+            <widget class="QSlider" name="isolinesRangeRhoMinSlider">
+             <property name="maximum">
+              <number>10</number>
+             </property>
+             <property name="orientation">
+              <enum>Qt::Horizontal</enum>
+             </property>
+            </widget>
+           </item>
+           <item row="3" column="0">
+            <widget class="QSlider" name="isolinesRangeRhoMaxSlider">
+             <property name="maximum">
+              <number>10</number>
+             </property>
+             <property name="value">
+              <number>10</number>
+             </property>
+             <property name="orientation">
+              <enum>Qt::Horizontal</enum>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="0">
+            <widget class="QLabel" name="isolinesRangeRhoMinLabel">
+             <property name="text">
+              <string>Min. value</string>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="0">
+            <widget class="QLabel" name="isolinesRangeRhoMaxLabel">
+             <property name="text">
+              <string>Max. value</string>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="1">
+            <widget class="QDoubleSpinBox" name="isolinesRangeRhoMinSpinBox">
+             <property name="decimals">
+              <number>2</number>
+             </property>
+             <property name="maximum">
+              <double>10.000000000000000</double>
+             </property>
+             <property name="singleStep">
+              <double>0.100000000000000</double>
+             </property>
+             <property name="value">
+              <double>0.000000000000000</double>
+             </property>
+            </widget>
+           </item>
+           <item row="3" column="1">
+            <widget class="QDoubleSpinBox" name="isolinesRangeRhoMaxSpinBox">
+             <property name="decimals">
+              <number>2</number>
+             </property>
+             <property name="maximum">
+              <double>10.000000000000000</double>
+             </property>
+             <property name="singleStep">
+              <double>0.100000000000000</double>
+             </property>
+             <property name="value">
+              <double>10.000000000000000</double>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+      <widget class="QWidget" name="heightplotSettingsPage">
+       <attribute name="title">
+        <string>Height plot</string>
+       </attribute>
+       <layout class="QVBoxLayout" name="verticalLayout_13">
+        <item>
+         <widget class="QCheckBox" name="showHeightplotCheckBox">
+          <property name="text">
+           <string>Show height plot</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QGroupBox" name="heightplotDataType">
+          <property name="maximumSize">
+           <size>
+            <width>16777215</width>
+            <height>80</height>
+           </size>
+          </property>
+          <property name="title">
+           <string>Data used for height</string>
+          </property>
+          <layout class="QVBoxLayout" name="verticalLayout_11">
+           <item>
+            <widget class="QComboBox" name="heightplotDataTypeComboBox">
+             <item>
+              <property name="text">
+               <string>Density</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>Velocity magnitude</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>Force field magnitude</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>Velocity divergence</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>Force field divergence</string>
+              </property>
+             </item>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+        </item>
+        <item>
+         <widget class="QGroupBox" name="heightplotViewRotationGroupBox">
+          <property name="maximumSize">
+           <size>
+            <width>16777215</width>
+            <height>200</height>
+           </size>
+          </property>
+          <property name="title">
+           <string>Rotation</string>
+          </property>
+          <layout class="QGridLayout" name="gridLayout">
+           <item row="0" column="0">
+            <widget class="QLabel" name="heightplotViewRotationXAxis">
+             <property name="text">
+              <string>X-axis</string>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignCenter</set>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="2">
+            <widget class="QDial" name="heightplotViewRotateZ">
+             <property name="maximum">
+              <number>180</number>
+             </property>
+             <property name="invertedAppearance">
+              <bool>false</bool>
+             </property>
+             <property name="notchTarget">
+              <double>10.000000000000000</double>
+             </property>
+             <property name="notchesVisible">
+              <bool>true</bool>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="1">
+            <widget class="QDial" name="heightplotViewRotateY">
+             <property name="maximum">
+              <number>180</number>
+             </property>
+             <property name="notchTarget">
+              <double>10.000000000000000</double>
+             </property>
+             <property name="notchesVisible">
+              <bool>true</bool>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="0">
+            <widget class="QDial" name="heightplotViewRotateX">
+             <property name="maximum">
+              <number>180</number>
+             </property>
+             <property name="notchTarget">
+              <double>10.000000000000000</double>
+             </property>
+             <property name="notchesVisible">
+              <bool>true</bool>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="1">
+            <widget class="QLabel" name="heightplotViewRotationYAxis">
+             <property name="text">
+              <string>Y-axis</string>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignCenter</set>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="2">
+            <widget class="QLabel" name="heightplotViewRotationZAxis">
+             <property name="text">
+              <string>Z-axis</string>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignCenter</set>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="heightplotResetRotation">
+          <property name="text">
+           <string>Reset rotation</string>
+          </property>
          </widget>
         </item>
        </layout>
@@ -872,13 +1372,6 @@
       </item>
       <item>
        <layout class="QGridLayout" name="legendsAndExtremaGridLayout">
-        <item row="0" column="3">
-         <widget class="QLCDNumber" name="scalarDataMaxLcdNumber">
-          <property name="digitCount">
-           <number>3</number>
-          </property>
-         </widget>
-        </item>
         <item row="0" column="0">
          <widget class="QLabel" name="scalarDataLabel">
           <property name="text">
@@ -905,6 +1398,13 @@
             <width>16777215</width>
             <height>25</height>
            </size>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="3">
+         <widget class="QLCDNumber" name="scalarDataMaxLcdNumber">
+          <property name="digitCount">
+           <number>3</number>
           </property>
          </widget>
         </item>
@@ -962,6 +1462,102 @@
  <resources/>
  <connections>
   <connection>
+   <sender>scalarDataColorMapNumberOfColorsSlider</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>scalarDataColorMapNumberOfColorsSpinBox</receiver>
+   <slot>setValue(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>157</x>
+     <y>364</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>495</x>
+     <y>368</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>scalarDataColorMapNumberOfColorsSpinBox</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>scalarDataColorMapNumberOfColorsSlider</receiver>
+   <slot>setValue(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>495</x>
+     <y>368</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>157</x>
+     <y>364</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>isolinesNumberOfIsolinesSlider</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>isolinesNumberOfIsolinesSpinBox</receiver>
+   <slot>setValue(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>69</x>
+     <y>531</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>559</x>
+     <y>536</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>isolinesNumberOfIsolinesSpinBox</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>isolinesNumberOfIsolinesSlider</receiver>
+   <slot>setValue(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>559</x>
+     <y>536</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>69</x>
+     <y>531</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>gridpointsSpinBox</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>gridpointsSlider</receiver>
+   <slot>setValue(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>559</x>
+     <y>613</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>314</x>
+     <y>608</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>isolinesUseCurrentScalarDataCheckBox</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>isolinesDataComboBox</receiver>
+   <slot>setDisabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>98</x>
+     <y>227</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>112</x>
+     <y>317</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
    <sender>showMinMaxDataCheckBox</sender>
    <signal>toggled(bool)</signal>
    <receiver>scalarDataMinLcdNumber</receiver>
@@ -994,22 +1590,6 @@
    </hints>
   </connection>
   <connection>
-   <sender>scalarDataSlicingSliceIndexHorizontalSlider</sender>
-   <signal>valueChanged(int)</signal>
-   <receiver>scalarDataSlicingSliceIndexSpinBox</receiver>
-   <slot>setValue(int)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>293</x>
-     <y>259</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>413</x>
-     <y>256</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
    <sender>gridpointsSlider</sender>
    <signal>valueChanged(int)</signal>
    <receiver>gridpointsSpinBox</receiver>
@@ -1026,50 +1606,18 @@
    </hints>
   </connection>
   <connection>
-   <sender>gridpointsSpinBox</sender>
+   <sender>scalarDataSlicingSliceIndexHorizontalSlider</sender>
    <signal>valueChanged(int)</signal>
-   <receiver>gridpointsSlider</receiver>
+   <receiver>scalarDataSlicingSliceIndexSpinBox</receiver>
    <slot>setValue(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>559</x>
-     <y>613</y>
+     <x>313</x>
+     <y>720</y>
     </hint>
     <hint type="destinationlabel">
-     <x>314</x>
-     <y>608</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>scalarDataColorMapNumberOfColorsSlider</sender>
-   <signal>valueChanged(int)</signal>
-   <receiver>scalarDataColorMapNumberOfColorsSpinBox</receiver>
-   <slot>setValue(int)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>122</x>
-     <y>414</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>495</x>
-     <y>418</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>scalarDataColorMapNumberOfColorsSpinBox</sender>
-   <signal>valueChanged(int)</signal>
-   <receiver>scalarDataColorMapNumberOfColorsSlider</receiver>
-   <slot>setValue(int)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>495</x>
-     <y>418</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>122</x>
-     <y>414</y>
+     <x>452</x>
+     <y>727</y>
     </hint>
    </hints>
   </connection>

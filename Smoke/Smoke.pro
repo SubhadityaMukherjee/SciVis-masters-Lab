@@ -1,8 +1,9 @@
 QT       += core gui
 
-# On the next line, add 'openglwidgets' after 'opengl' to make this work with Qt6
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets opengl
-QMAKE_CXXFLAGS += -std=c++17
+
+greaterThan(QT_MAJOR_VERSION, 5): QT += openglwidgets
+
 TARGET = Smoke
 TEMPLATE = app
 
@@ -15,12 +16,13 @@ DEFINES += QT_DEPRECATED_WARNINGS
 # You can also make your code fail to compile if you use deprecated APIs.
 # In order to do so, uncomment the following line.
 # You can also select to disable deprecated APIs only up to a certain version of Qt.
-DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
+#DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 CONFIG += c++17
 
 SOURCES += \
         main.cpp \
+        mainwindow_preprocessing.cpp \
         simulation.cpp \
         visualization.cpp \
         visualization_input.cpp \
@@ -28,11 +30,12 @@ SOURCES += \
         legend.cpp \
         mainwindow_general.cpp \
         mainwindow_simulation.cpp \
-        mainwindow_scalardata.cpp
+        mainwindow_scalardata.cpp \
+        mainwindow_isolines.cpp \
+        isoline.cpp \
+        mainwindow_heightplot.cpp
 
 HEADERS += \
-        legendscalardata.h \
-        legendvectordata.h \
         mainwindow.h \
         simulation.h \
         visualization.h \
@@ -41,8 +44,10 @@ HEADERS += \
         texture.h \
         colormap.h \
         legend.h \
+        legendscalardata.h \
         movingaverage.h \
         fftwf_malloc_allocator.h \
+        isoline.h \
         constants.h
 
 FORMS += \
@@ -57,4 +62,6 @@ LIBS += -L/opt/local/lib -lfftw3f
 RESOURCES += \
           resources.qrc
 
-#QMAKE_RPATHDIR += /opt/local/libexec/qt6/lib
+macx: {
+QMAKE_RPATHDIR += /opt/local/libexec/qt6/lib
+}

@@ -57,7 +57,7 @@ void MovingAverage<T>::setWindowSize(size_t const windowSize)
 template <typename T>
 void MovingAverage<T>::fillWindow()
 {
-    for (size_t n = 0U; n < m_windowSize; ++n)
+    for (size_t n = 0; n < m_windowSize; ++n)
         m_window.push(m_initialValue);
 }
 

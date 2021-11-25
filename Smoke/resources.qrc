@@ -4,6 +4,11 @@
         <file>shaders/scalarData_clamp.vert</file>
         <file>shaders/scalarData_scale.vert</file>
         <file>shaders/scalarData_texture.frag</file>
+        <file>shaders/isolines.frag</file>
+        <file>shaders/isolines.vert</file>
+        <file>shaders/heightplot.frag</file>
+        <file>shaders/heightplot_clamp.vert</file>
+        <file>shaders/heightplot_scale.vert</file>
         <file>shaders/scalarData_customcolormap.frag</file>
     </qresource>
 </RCC>

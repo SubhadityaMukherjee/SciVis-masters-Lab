@@ -29,10 +29,10 @@ class Legend : public QOpenGLWidget, protected QOpenGLFunctions_3_3_Core
     QOpenGLShaderProgram m_shaderProgramColorMap;
 
     // The legend is a rectangle, drawn as two triangles.
-    static std::array<Vertex, 4> constexpr m_vertices{Vertex{-1.0f,  1.0f, 0.0f},  // Top left.
-                                                      Vertex{-1.0f, -1.0f, 0.0f},  // Bottom left.
-                                                      Vertex{ 1.0f,  1.0f, 1.0f},  // Top right.
-                                                      Vertex{ 1.0f, -1.0f, 1.0f}}; // Bottom right.
+    static std::array<Vertex, 4> constexpr m_vertices{Vertex{-1.0F,  1.0F, 0.0F},  // Top left.
+                                                      Vertex{-1.0F, -1.0F, 0.0F},  // Bottom left.
+                                                      Vertex{ 1.0F,  1.0F, 1.0F},  // Top right.
+                                                      Vertex{ 1.0F, -1.0F, 1.0F}}; // Bottom right.
     static std::array<unsigned short, 6> constexpr m_indices{0, 1, 2,
                                                              1, 3, 2};
 

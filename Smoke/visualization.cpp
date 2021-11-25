@@ -1,6 +1,7 @@
 #include "visualization.h"
 
 #include "constants.h"
+#include "isoline.h"
 #include "mainwindow.h"
 #include "texture.h"
 
@@ -9,7 +10,9 @@
 #include <QDebug>
 
 #include <algorithm>
+#include <array>
 #include <cmath>
+#include <vector>
 
 Visualization::Visualization(QWidget *parent) : QOpenGLWidget(parent)
 {
@@ -31,7 +34,18 @@ Visualization::~Visualization()
     glDeleteBuffers(1, &m_vboScalarData);
     glDeleteBuffers(1, &m_eboScalarData);
 
+    glDeleteVertexArrays(1, &m_vaoIsolines);
+    glDeleteBuffers(1, &m_vboIsolines);
+
+    glDeleteVertexArrays(1, &m_vaoHeightplot);
+    glDeleteBuffers(1, &m_vboHeightplotPoints);
+    glDeleteBuffers(1, &m_vboHeightplotHeight);
+    glDeleteBuffers(1, &m_vboHeightplotScalarValues);
+    glDeleteBuffers(1, &m_vboHeightplotNormals);
+    glDeleteBuffers(1, &m_eboHeightplot);
+
     glDeleteTextures(1, &m_scalarDataTextureLocation);
+    glDeleteTextures(1, &m_vectorDataTextureLocation);
 }
 
 void Visualization::do_one_simulation_step()
@@ -67,10 +81,14 @@ void Visualization::initializeGL() {
     createShaderProgramScalarDataScaleCustomColorMap();
     createShaderProgramScalarDataClampTexture();
     createShaderProgramScalarDataClampCustomColorMap();
+    createShaderProgramIsolines();
+    createShaderProgramHeightplotScale();
+    createShaderProgramHeightplotClamp();
 
     // Retrieve default textures.
     auto const mainWindowPtr = qobject_cast<MainWindow*>(parent()->parent());
     std::vector<Color> const defaultScalarDataColorMap = mainWindowPtr->m_defaultScalarDataColorMap;
+    std::vector<Color> const defaultVectorDataColorMap = mainWindowPtr->m_defaultVectorDataColorMap;
 
     // Generate buffers.
     glGenVertexArrays(1, &m_vaoScalarData);
@@ -79,16 +97,30 @@ void Visualization::initializeGL() {
     glGenBuffers(1, &m_eboScalarData);
     glGenTextures(1, &m_scalarDataTextureLocation);
 
+    glGenVertexArrays(1, &m_vaoIsolines);
+    glGenBuffers(1, &m_vboIsolines);
+    glGenTextures(1, &m_isolinesTextureLocation);
+
+    glGenVertexArrays(1, &m_vaoHeightplot);
+    glGenBuffers(1, &m_vboHeightplotPoints);
+    glGenBuffers(1, &m_vboHeightplotScalarValues);
+    glGenBuffers(1, &m_vboHeightplotHeight);
+    glGenBuffers(1, &m_vboHeightplotNormals);
+    glGenBuffers(1, &m_eboHeightplot);
+
     setupAllBuffers();
 
     loadScalarDataTexture(defaultScalarDataColorMap);
 
+    rotateView();
     m_normalTransformationMatrix.setToIdentity();
 }
 
 void Visualization::setupAllBuffers()
 {
     setupScalarData();
+    setupIsolines();
+    setupHeightplot();
 }
 
 void Visualization::setupScalarData()
@@ -111,10 +143,10 @@ void Visualization::setupScalarData()
     glEnableVertexAttribArray(1);
     glVertexAttribPointer(1, 1, GL_FLOAT, GL_FALSE, 0, reinterpret_cast<GLvoid*>(0));
 
-    size_t const numberOfTriangleStripIndices = (m_DIM - 1U) * (2U * m_DIM + 2U) - 2U;
+    size_t const numberOfTriangleStripIndices = (m_DIM - 1) * (2 * m_DIM + 2) - 2;
     m_indices.reserve(numberOfTriangleStripIndices);
 
-    for (unsigned short stripIdx = 0U; stripIdx < (m_DIM * (m_DIM - 1U)); stripIdx += m_DIM)
+    for (unsigned short stripIdx = 0; stripIdx < (m_DIM * (m_DIM - 1)); stripIdx += m_DIM)
     {
         unsigned short lastUsedIdx;
         for (unsigned short idx = stripIdx; idx < (stripIdx + m_DIM); ++idx)
@@ -135,6 +167,63 @@ void Visualization::setupScalarData()
     m_indices.erase(m_indices.end() - 2, m_indices.end());
 
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_eboScalarData);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER,
+                 static_cast<GLsizeiptr>(m_indices.size() * sizeof(unsigned short)),
+                 m_indices.data(),
+                 GL_STATIC_DRAW);
+}
+
+void Visualization::setupIsolines()
+{
+    glBindVertexArray(m_vaoIsolines);
+    glBindBuffer(GL_ARRAY_BUFFER, m_vboIsolines);
+
+    // Set vertex coordinates to location 0
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(QVector3D), reinterpret_cast<GLvoid*>(0));
+
+    // Set height to location 1
+    glEnableVertexAttribArray(1);
+    glVertexAttribPointer(1, 1, GL_FLOAT, GL_FALSE, sizeof(QVector3D), reinterpret_cast<GLvoid*>(2 * sizeof(float)));
+}
+
+void Visualization::setupHeightplot()
+{
+    glBindVertexArray(m_vaoHeightplot);
+
+    glBindBuffer(GL_ARRAY_BUFFER, m_vboHeightplotPoints);
+    glBufferData(GL_ARRAY_BUFFER,
+                 static_cast<GLsizeiptr>(m_DIM * m_DIM * 2 * sizeof(float)),
+                 static_cast<GLvoid*>(nullptr),
+                 GL_DYNAMIC_DRAW);
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, reinterpret_cast<GLvoid*>(0));
+
+    glBindBuffer(GL_ARRAY_BUFFER, m_vboHeightplotHeight);
+    glBufferData(GL_ARRAY_BUFFER,
+                 static_cast<GLsizeiptr>(m_DIM * m_DIM * sizeof(float)),
+                 static_cast<GLvoid*>(nullptr),
+                 GL_DYNAMIC_DRAW);
+    glEnableVertexAttribArray(1);
+    glVertexAttribPointer(1, 1, GL_FLOAT, GL_FALSE, 0, reinterpret_cast<GLvoid*>(0));
+
+    glBindBuffer(GL_ARRAY_BUFFER, m_vboHeightplotScalarValues);
+    glBufferData(GL_ARRAY_BUFFER,
+                 static_cast<GLsizeiptr>(m_DIM * m_DIM * sizeof(float)),
+                 static_cast<GLvoid*>(nullptr),
+                 GL_DYNAMIC_DRAW);
+    glEnableVertexAttribArray(2);
+    glVertexAttribPointer(2, 1, GL_FLOAT, GL_FALSE, 0, reinterpret_cast<GLvoid*>(0));
+
+    glBindBuffer(GL_ARRAY_BUFFER, m_vboHeightplotNormals);
+    glBufferData(GL_ARRAY_BUFFER,
+                 static_cast<GLsizeiptr>(m_DIM * m_DIM * 3 * sizeof(float)),
+                 static_cast<GLvoid*>(nullptr),
+                 GL_DYNAMIC_DRAW);
+    glEnableVertexAttribArray(3);
+    glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, 0, reinterpret_cast<GLvoid*>(0));
+
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_eboHeightplot);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER,
                  static_cast<GLsizeiptr>(m_indices.size() * sizeof(unsigned short)),
                  m_indices.data(),
@@ -227,6 +316,82 @@ void Visualization::createShaderProgramScalarDataClampCustomColorMap()
     qDebug() << "m_shaderProgramScalarDataClampCustomColorMap initialized.";
 }
 
+void Visualization::createShaderProgramIsolines()
+{
+    m_shaderProgramIsolines.addShaderFromSourceFile(QOpenGLShader::Vertex,   ":/shaders/isolines.vert");
+    m_shaderProgramIsolines.addShaderFromSourceFile(QOpenGLShader::Fragment, ":/shaders/isolines.frag");
+    m_shaderProgramIsolines.link();
+
+    m_uniformLocationIsolines_projection = m_shaderProgramIsolines.uniformLocation("projectionTransform");
+    Q_ASSERT(m_uniformLocationIsolines_projection != -1);
+    m_uniformLocationIsolines_color = m_shaderProgramIsolines.uniformLocation("isolineColor");
+    Q_ASSERT(m_uniformLocationIsolines_color != -1);
+
+    qDebug() << "m_shaderProgramIsolines initialized.";
+}
+
+void Visualization::createShaderProgramHeightplotScale()
+{
+    m_shaderProgramHeightplotScale.addShaderFromSourceFile(QOpenGLShader::Vertex,   ":/shaders/heightplot_scale.vert");
+    m_shaderProgramHeightplotScale.addShaderFromSourceFile(QOpenGLShader::Fragment, ":/shaders/heightplot.frag");
+    m_shaderProgramHeightplotScale.link();
+
+    m_uniformLocationHeightplotScale_rangeMin = m_shaderProgramHeightplotScale.uniformLocation("rangeMin");
+    Q_ASSERT(m_uniformLocationHeightplotScale_rangeMin != -1);
+    m_uniformLocationHeightplotScale_rangeMax = m_shaderProgramHeightplotScale.uniformLocation("rangeMax");
+    Q_ASSERT(m_uniformLocationHeightplotScale_rangeMax != -1);
+    m_uniformLocationHeightplotScale_transferK = m_shaderProgramHeightplotScale.uniformLocation("transferK");
+    Q_ASSERT(m_uniformLocationHeightplotScale_transferK != -1);
+
+    m_uniformLocationHeightplotScale_projection = m_shaderProgramHeightplotScale.uniformLocation("projectionTransform");
+    Q_ASSERT(m_uniformLocationHeightplotScale_projection != -1);
+    m_uniformLocationHeightplotScale_view = m_shaderProgramHeightplotScale.uniformLocation("viewTransform");
+    Q_ASSERT(m_uniformLocationHeightplotScale_view != -1);
+    m_uniformLocationHeightplotScale_normal = m_shaderProgramHeightplotScale.uniformLocation("normalTransform");
+    Q_ASSERT(m_uniformLocationHeightplotScale_normal != -1);
+
+    m_uniformLocationHeightplotScale_material = m_shaderProgramHeightplotScale.uniformLocation("material");
+    Q_ASSERT(m_uniformLocationHeightplotScale_material != -1);
+    m_uniformLocationHeightplotScale_light = m_shaderProgramHeightplotScale.uniformLocation("lightPosition");
+    Q_ASSERT(m_uniformLocationHeightplotScale_light != -1);
+
+    m_uniformLocationHeightplotScale_texture = m_shaderProgramHeightplotScale.uniformLocation("textureSampler");
+    Q_ASSERT(m_uniformLocationHeightplotScale_texture != -1);
+
+    qDebug() << "m_shaderProgramHeightplotScale initialized.";
+}
+
+void Visualization::createShaderProgramHeightplotClamp()
+{
+    m_shaderProgramHeightplotClamp.addShaderFromSourceFile(QOpenGLShader::Vertex,   ":/shaders/heightplot_clamp.vert");
+    m_shaderProgramHeightplotClamp.addShaderFromSourceFile(QOpenGLShader::Fragment, ":/shaders/heightplot.frag");
+    m_shaderProgramHeightplotClamp.link();
+
+    m_uniformLocationHeightplotClamp_clampMin = m_shaderProgramHeightplotClamp.uniformLocation("clampMin");
+    Q_ASSERT(m_uniformLocationHeightplotClamp_clampMin != -1);
+    m_uniformLocationHeightplotClamp_clampMax = m_shaderProgramHeightplotClamp.uniformLocation("clampMax");
+    Q_ASSERT(m_uniformLocationHeightplotClamp_clampMax != -1);
+    m_uniformLocationHeightplotClamp_transferK = m_shaderProgramHeightplotClamp.uniformLocation("transferK");
+    Q_ASSERT(m_uniformLocationHeightplotScale_transferK != -1);
+
+    m_uniformLocationHeightplotClamp_projection = m_shaderProgramHeightplotClamp.uniformLocation("projectionTransform");
+    Q_ASSERT(m_uniformLocationHeightplotClamp_projection != -1);
+    m_uniformLocationHeightplotClamp_view = m_shaderProgramHeightplotClamp.uniformLocation("viewTransform");
+    Q_ASSERT(m_uniformLocationHeightplotClamp_view != -1);
+    m_uniformLocationHeightplotClamp_normal = m_shaderProgramHeightplotClamp.uniformLocation("normalTransform");
+    Q_ASSERT(m_uniformLocationHeightplotClamp_normal != -1);
+
+    m_uniformLocationHeightplotClamp_material = m_shaderProgramHeightplotClamp.uniformLocation("material");
+    Q_ASSERT(m_uniformLocationHeightplotClamp_material != -1);
+    m_uniformLocationHeightplotClamp_light = m_shaderProgramHeightplotClamp.uniformLocation("lightPosition");
+    Q_ASSERT(m_uniformLocationHeightplotClamp_light != -1);
+
+    m_uniformLocationHeightplotClamp_texture = m_shaderProgramHeightplotClamp.uniformLocation("textureSampler");
+    Q_ASSERT(m_uniformLocationHeightplotClamp_texture != -1);
+
+    qDebug() << "m_shaderProgramHeightplotClamp initialized.";
+}
+
 void Visualization::loadScalarDataTexture(std::vector<Color> const &colorMap)
 {
     // Set texture parameters.
@@ -249,10 +414,25 @@ void Visualization::paintGL()
 {
     glBindVertexArray(0);
 
+    // Clear the screen before rendering
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+    if (m_drawHeightplot)
+    {
+        drawHeightplot();
+        return;
+    }
 
     if (m_drawScalarData)
         drawScalarData();
+
+    if (m_drawIsolines)
+    {
+        m_shaderProgramIsolines.bind();
+        glUniformMatrix4fv(m_uniformLocationIsolines_projection, 1, GL_FALSE, m_projectionTransformationMatrix.data());
+        glUniform3fv(m_uniformLocationIsolines_color, 1, &m_isolineColor[0]);
+        drawIsolines();
+    }
 }
 
 void Visualization::resizeGL(int const width, int const height)
@@ -263,10 +443,18 @@ void Visualization::resizeGL(int const width, int const height)
     m_projectionTransformationMatrix.setToIdentity();
 
     m_projectionTransformationMatrix.ortho(0.0F, width,
-                                           0.0F, height,
-                                           -50.0F, 50.0F);
+                       0.0F, height,
+                       -50.0F, 50.0F);
 
     updateScalarPoints();
+}
+
+void Visualization::rotateView()
+{
+    m_viewTransformationMatrix.setToIdentity();
+    m_viewTransformationMatrix.rotate(m_rotation.x(), 1.0, 0.0, 0.0);
+    m_viewTransformationMatrix.rotate(m_rotation.y(), 0.0, 1.0, 0.0);
+    m_viewTransformationMatrix.rotate(m_rotation.z(), 0.0, 0.0, 1.0);
 }
 
 void Visualization::updateScalarPoints()
@@ -292,48 +480,112 @@ void Visualization::updateScalarPoints()
                     0,
                     static_cast<GLsizeiptr>(scalarPoints.size() * 2 * sizeof(float)),
                     scalarPoints.data());
+
+    glBindBuffer(GL_ARRAY_BUFFER, m_vboHeightplotPoints);
+    glBufferSubData(GL_ARRAY_BUFFER,
+                    0,
+                    static_cast<GLsizeiptr>(scalarPoints.size() * 2 * sizeof(float)),
+                    scalarPoints.data());
 }
 
-/* This function receives a *reference* to a std::vector<float>,
- * which acts as a pointer. Modifying scalarValues here will result
- * in the scalarValues passed to this function to be modified.
- * You may also define a new "std::vector<float> v" here, fill it with
- * new values and assign it to scalarValues to replace it,
- * e.g. "scalarValues = v;".
- *
- * m_sliceIdx contains the value set in the GUI.
- * m_DIM contains the current dimensions of the square (m_DIM * m_DIM).
- * m_slicingWindowSize contains the size of the window (here, also m_DIM).
- * m_slicingDirection contains the slicing direction set in the GUI and
- *    is already handled in a switch statement.
- */
+void Visualization::applyQuantization(std::vector<float> &scalarValues)
+{
+    // Convert the floating point values to (8 bit) unsigned integers,
+    // so that the data can be treated as an image.
+    // The image's pixel values are in the range [0, 255].
+    float const maxValue = *std::max_element(scalarValues.cbegin(), scalarValues.cend());
+    std::vector<unsigned int> image;
+    image.reserve(scalarValues.size());
+    for (auto const x : scalarValues)
+        image.push_back(static_cast<unsigned int>(std::lroundf(x / maxValue * 255.0F)));
+
+
+    // Apply quantization to std::vector<unsigned int> image here.
+    // The variable m_quantizationBits ('n' in the lecture slides) is set in the GUI and can be used here.
+    // L needs to be set to the appropriate value and will be used to set the clamping range in the GUI.
+    // ..
+
+    unsigned int const L = 1U; // placeholder value
+    qDebug() << "Quantization not implemented";
+
+
+    // Convert the image's data back to floating point values, so that it can be processed as usual.
+    scalarValues = std::vector<float>{image.cbegin(), image.cend()};
+
+    // Force the clamping range in the GUI to be [0, L].
+    auto const mainWindowPtr = qobject_cast<MainWindow*>(parent()->parent());
+    Q_ASSERT(mainWindowPtr != nullptr);
+    mainWindowPtr->on_scalarDataMappingClampingMaxSlider_valueChanged(0);
+    mainWindowPtr->on_scalarDataMappingClampingMaxSlider_valueChanged(100 * static_cast<int>(L));
+}
+
+void Visualization::applyGaussianBlur(std::vector<float> &scalarValues)
+{
+    // Implement Gaussian blur here, applied on the values of the scalarValues container.
+    // First, define a 3x3 matrix for the kernel.
+    // (Use a C-style 2D array, a std::array of std::array's, or a std::vector of std::vectors)
+    // ...
+
+    qDebug() << "Gaussian blur not implemented";
+}
+
+void Visualization::applyGradients(std::vector<float> &scalarValues)
+{
+    // Implement Gradient extraction here, applied on the values of the scalarValues container.
+    // First, define a 3x3 Sobel kernels (for x and y directions).
+    // (Use a C-style 2D array, a std::array of std::array's, or a std::vector of std::vectors)
+    // Convolve the values of the scalarValues container with the Sobel kernels
+    // Calculate the Gradient magnitude
+    // Calculate the Gradient direction
+    // apply the Gradient magnitude to the scalarValues.
+
+    qDebug() << "applyGradients not implemented";
+}
+
 void Visualization::applySlicing(std::vector<float> &scalarValues)
 {
-    qDebug() << "Slicing not implemented";
-    // Add code here and below to complete the implementation
+    // Update window, the most recent scalar values are in index 0
+    m_scalarValuesWindow.pop_back();
+    m_scalarValuesWindow.push_front(scalarValues);
 
+    Q_ASSERT(m_sliceIdx < m_DIM);
+
+    std::vector<float> tmp;
     switch (m_slicingDirection)
     {
     case SlicingDirection::x:
         // xIdx is constant
-        qDebug() << "Slicing in x not implemented";
+        for (size_t yIdx = 0U; yIdx < m_DIM; ++yIdx)
+            for (size_t tIdx = 0U; tIdx < m_DIM; ++tIdx)
+                tmp.push_back(m_scalarValuesWindow[tIdx][m_DIM * yIdx + m_sliceIdx]);
         break;
 
     case SlicingDirection::y:
         // yIdx is constant
-        qDebug() << "Slicing in y not implemented";
+        for (size_t xIdx = 0U; xIdx < m_DIM; ++xIdx)
+            for (size_t tIdx = 0U; tIdx < m_DIM; ++tIdx)
+                tmp.push_back(m_scalarValuesWindow[tIdx][m_DIM * m_sliceIdx + xIdx]);
         break;
 
     case SlicingDirection::t:
-        // t is constant
-        qDebug() << "Slicing in t not implemented";
+        // t is constant. This is simply a 'regular' slice in time
+        tmp = m_scalarValuesWindow[m_sliceIdx];
         break;
     }
+
+    scalarValues = tmp;
 }
 
 void Visualization::applyPreprocessing(std::vector<float> &scalarValues)
 {
-    // Other preprocessing steps can be insered here
+    if (m_useQuantization)
+        applyQuantization(scalarValues);
+
+    if (m_useGaussianBlur)
+        applyGaussianBlur(scalarValues);
+
+    if (m_useGradients)
+        applyGradients(scalarValues);
 
     if (m_useSlicing)
         applySlicing(scalarValues);
@@ -357,12 +609,12 @@ void Visualization::drawScalarData()
             scalarValues = m_simulation.velocityMagnitude();
         break;
 
-        case ScalarDataType::VelocityDivergence:
-            qDebug() << "Velocity divergence not implemented";
+        case ScalarDataType::ForceFieldDivergence:
+            qDebug() << "Scalar data type ForceFieldDivergence not implemented";
         break;
 
-        case ScalarDataType::ForceFieldDivergence:
-            qDebug() << "Force field divergence not implemented";
+        case ScalarDataType::VelocityDivergence:
+            qDebug() << "Scalar data type VelocityDivergence not implemented";
         break;
     }
 
@@ -494,6 +746,226 @@ void Visualization::drawScalarData()
                    static_cast<GLvoid*>(nullptr));
 }
 
+void Visualization::drawIsolines()
+{
+       
+    float const stepsize = [&]()
+    {
+        if (m_numberOfIsolines > 1)
+            return (m_isolineMaxValue - m_isolineMinValue) / (m_numberOfIsolines - 1);
+
+        return 1.0F;
+    }();
+
+    std::vector<float> scalarValues;
+
+    switch (m_manuallyChooseIsolineDataType ? m_currentIsolineDataType : m_currentScalarDataType)
+    {
+        case ScalarDataType::Density:
+            scalarValues = m_simulation.density();
+        break;
+
+        case ScalarDataType::ForceFieldMagnitude:
+            scalarValues = m_simulation.forceFieldMagnitude();
+        break;
+
+        case ScalarDataType::VelocityMagnitude:
+            scalarValues = m_simulation.velocityMagnitude();
+        break;
+
+        case ScalarDataType::VelocityDivergence:
+            qDebug() << "Not implemented";
+        break;
+
+        case ScalarDataType::ForceFieldDivergence:
+            qDebug() << "Not implemented";
+        break;
+    }
+
+
+    for (size_t n = 0U; n < m_numberOfIsolines; ++n)
+    {
+        float const currentIsolineValue = m_isolineMinValue + (n * stepsize);
+        std::vector<QVector2D> const vertices{Isoline(scalarValues,
+                                                      m_DIM,
+                                                      currentIsolineValue,
+                                                      m_cellWidth,
+                                                      m_isolineInterpolationMethod).vertices()};
+
+        std::vector<QVector3D> isolineVertices;
+        isolineVertices.reserve(vertices.size());
+        for (auto const &v : vertices)
+            isolineVertices.emplace_back(v, 0.0F);
+
+        glBindVertexArray(m_vaoIsolines);
+
+
+        // buffer data and draw lines
+        glBindBuffer(GL_ARRAY_BUFFER, m_vboIsolines);
+        glBufferData(GL_ARRAY_BUFFER,
+                     static_cast<GLsizeiptr>(isolineVertices.size() * sizeof(QVector3D)),
+                     isolineVertices.data(),
+                     GL_DYNAMIC_DRAW);
+
+	
+        glDrawArrays(GL_LINES, 0, static_cast<GLsizei>(isolineVertices.size()));
+
+    }
+}
+
+void Visualization::drawHeightplot()
+{
+    std::vector<float> scalarValues;
+    std::vector<float> heightValues;
+
+    switch (m_currentScalarDataType)
+    {
+        case ScalarDataType::Density:
+            scalarValues = m_simulation.density();
+        break;
+
+        case ScalarDataType::ForceFieldMagnitude:
+            scalarValues = m_simulation.forceFieldMagnitude();
+        break;
+
+        case ScalarDataType::VelocityMagnitude:
+            scalarValues = m_simulation.velocityMagnitude();
+        break;
+
+        case ScalarDataType::VelocityDivergence:
+            qDebug() << "Not implemented";
+        break;
+
+        case ScalarDataType::ForceFieldDivergence:
+            qDebug() << "Not implemented";
+        break;
+    }
+
+    switch (m_currentHeightplotDataType)
+    {
+        case ScalarDataType::Density:
+            heightValues = m_simulation.density();
+        break;
+
+        case ScalarDataType::ForceFieldMagnitude:
+            heightValues = m_simulation.forceFieldMagnitude();
+        break;
+
+        case ScalarDataType::VelocityMagnitude:
+            heightValues = m_simulation.velocityMagnitude();
+        break;
+
+        case ScalarDataType::VelocityDivergence:
+            qDebug() << "Not implemented";
+        break;
+
+        case ScalarDataType::ForceFieldDivergence:
+            qDebug() << "Not implemented";
+        break;
+    }
+
+    switch (m_currentMappingType)
+    {
+        case MappingType::Scaling:
+        {
+            m_shaderProgramHeightplotScale.bind();
+            glUniformMatrix4fv(m_uniformLocationHeightplotScale_projection, 1, GL_FALSE, m_projectionTransformationMatrix.data());
+            glUniformMatrix4fv(m_uniformLocationHeightplotScale_view, 1, GL_FALSE, m_viewTransformationMatrix.data());
+            glUniformMatrix3fv(m_uniformLocationHeightplotScale_normal, 1, GL_FALSE, m_normalTransformationMatrix.data());
+
+            glUniform4fv(m_uniformLocationHeightplotScale_material, 1, &m_materialConstants[0]);
+            glUniform3fv(m_uniformLocationHeightplotScale_light, 1, &m_lightPosition[0]);
+
+            auto const currentMinMaxIt = std::minmax_element(scalarValues.cbegin(), scalarValues.cend());
+            QVector2D currentMinMax{*currentMinMaxIt.first, *currentMinMaxIt.second};
+
+            m_minMaxDensity.update(currentMinMax);
+            QVector2D const minMaxAverage{m_minMaxDensity.average()};
+
+            // Send values to GUI.
+            if (m_sendMinMaxToUI)
+            {
+                auto const mainWindowPtr = qobject_cast<MainWindow*>(parent()->parent());
+                Q_ASSERT(mainWindowPtr != nullptr);
+                mainWindowPtr->setScalarDataMin(minMaxAverage.x());
+                mainWindowPtr->setScalarDataMax(minMaxAverage.y());
+            }
+
+            glUniform1f(m_uniformLocationHeightplotScale_rangeMin, minMaxAverage.x());
+            glUniform1f(m_uniformLocationHeightplotScale_rangeMax, minMaxAverage.y());
+            glUniform1f(m_uniformLocationHeightplotScale_transferK, m_transferK);
+
+            glUniform1i(m_uniformLocationHeightplotScale_texture, 0);
+            glActiveTexture(GL_TEXTURE0);
+            glBindTexture(GL_TEXTURE_1D, m_scalarDataTextureLocation);
+        }
+        break;
+
+        case MappingType::Clamping:
+        {
+            m_shaderProgramHeightplotClamp.bind();
+            glUniformMatrix4fv(m_uniformLocationHeightplotClamp_projection, 1, GL_FALSE, m_projectionTransformationMatrix.data());
+            glUniformMatrix4fv(m_uniformLocationHeightplotClamp_view, 1, GL_FALSE, m_viewTransformationMatrix.data());
+            glUniformMatrix3fv(m_uniformLocationHeightplotClamp_normal, 1, GL_FALSE, m_normalTransformationMatrix.data());
+
+            glUniform4fv(m_uniformLocationHeightplotClamp_material, 1, &m_materialConstants[0]);
+            glUniform3fv(m_uniformLocationHeightplotClamp_light, 1, &m_lightPosition[0]);
+
+            // Send values to GUI.
+            auto const mainWindowPtr = qobject_cast<MainWindow*>(parent()->parent());
+            Q_ASSERT(mainWindowPtr != nullptr);
+            mainWindowPtr->setScalarDataMin(m_clampMin);
+            mainWindowPtr->setScalarDataMax(m_clampMax);
+
+            glUniform1f(m_uniformLocationHeightplotClamp_clampMin, m_clampMin);
+            glUniform1f(m_uniformLocationHeightplotClamp_clampMax, m_clampMax);
+            glUniform1f(m_uniformLocationHeightplotClamp_transferK, m_transferK);
+
+            glUniform1i(m_uniformLocationHeightplotClamp_texture, 0);
+            glActiveTexture(GL_TEXTURE0);
+            glBindTexture(GL_TEXTURE_1D, m_scalarDataTextureLocation);
+        }
+        break;
+    }
+
+    // added some scaling for nicer results
+    for(auto & e : heightValues)
+      e *= 3.;
+
+    std::vector<QVector3D> normals = computeNormals(heightValues);
+
+    glBindVertexArray(m_vaoHeightplot);
+
+    // Copy scalars to GPU buffer
+    glBindBuffer(GL_ARRAY_BUFFER, m_vboHeightplotScalarValues);
+    glBufferSubData(GL_ARRAY_BUFFER,
+                    0,
+                    static_cast<GLsizeiptr>(scalarValues.size() * sizeof(float)),
+                    scalarValues.data());
+
+    glBindBuffer(GL_ARRAY_BUFFER, m_vboHeightplotHeight);
+    glBufferSubData(GL_ARRAY_BUFFER,
+                    0,
+                    static_cast<GLsizeiptr>(heightValues.size() * sizeof(float)),
+                    heightValues.data());
+
+    glBindBuffer(GL_ARRAY_BUFFER, m_vboHeightplotNormals);
+    glBufferSubData(GL_ARRAY_BUFFER,
+                    0,
+                    static_cast<GLsizeiptr>(normals.size() * 3 * sizeof(float)),
+                    normals.data());
+
+    glDrawElements(GL_TRIANGLE_STRIP,
+                   static_cast<GLsizei>(m_indices.size()),
+                   GL_UNSIGNED_SHORT,
+                   static_cast<GLvoid*>(nullptr));
+}
+
+std::vector<QVector3D> Visualization::computeNormals(std::vector<float> heights)
+{
+    return std::vector<QVector3D>(heights.size(), QVector3D(0,0,1));
+}
+
 // drag: When the user drags with the mouse, add a force that corresponds to the direction of the mouse
 //       cursor movement. Also inject some new matter into the field at the mouse location.
 void Visualization::drag(int const mx, int my)
@@ -545,7 +1017,7 @@ void Visualization::setDIM(size_t const DIM)
 
     m_DIM = DIM;
     setupAllBuffers();
-    resizeGL(width(), height()); // TODO: Does this do too much or exactly enough?
+    resizeGL(width(), height());
     m_simulation.setDIM(m_DIM);
     m_timer.start();
 }

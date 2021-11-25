@@ -10,4 +10,10 @@ enum class ScalarDataType
     ForceFieldDivergence
 };
 
+enum class VectorDataType
+{
+    Velocity,
+    ForceField
+};
+
 #endif // DATATYPE_H

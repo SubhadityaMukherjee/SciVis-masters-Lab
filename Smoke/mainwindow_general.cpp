@@ -11,6 +11,9 @@ MainWindow::MainWindow(QWidget *parent) :
     ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
+    // Disable changing to auto-scaling in gui for now
+    ui->scalarDataMappingMappingTypeClampingRadioButton->setEnabled(0);
+    ui->scalarDataMappingMappingTypeScalingRadioButton->setEnabled(0);
 }
 
 MainWindow::~MainWindow()
@@ -18,6 +21,7 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
+// General functions.
 std::vector<Color> MainWindow::enumToColorMap(ColorMap const colorMap, size_t numberOfColors) const
 {
     std::vector<Color> ret;

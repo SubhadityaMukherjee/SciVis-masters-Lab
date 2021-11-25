@@ -13,6 +13,8 @@
 #include <array>
 #include <cmath>
 #include <vector>
+constexpr int MOD = 998244353; //done
+#include <bits/stdc++.h> //done
 
 Visualization::Visualization(QWidget *parent) : QOpenGLWidget(parent)
 {
@@ -505,9 +507,7 @@ void Visualization::applyQuantization(std::vector<float> &scalarValues)
     // L needs to be set to the appropriate value and will be used to set the clamping range in the GUI.
     // ..
 
-    unsigned int const L = 1U; // placeholder value
-    qDebug() << "Quantization not implemented";
-
+    unsigned int const L = pow(2, m_quantizationBits) -1; //done
 
     // Convert the image's data back to floating point values, so that it can be processed as usual.
     scalarValues = std::vector<float>{image.cbegin(), image.cend()};
@@ -516,8 +516,42 @@ void Visualization::applyQuantization(std::vector<float> &scalarValues)
     auto const mainWindowPtr = qobject_cast<MainWindow*>(parent()->parent());
     Q_ASSERT(mainWindowPtr != nullptr);
     mainWindowPtr->on_scalarDataMappingClampingMaxSlider_valueChanged(0);
-    mainWindowPtr->on_scalarDataMappingClampingMaxSlider_valueChanged(100 * static_cast<int>(L));
+    // mainWindowPtr->on_scalarDataMappingClampingMaxSlider_valueChanged(100 * static_cast<int>(L));
+    mainWindowPtr->on_scalarDataMappingClampingMaxSlider_valueChanged(static_cast<int>(L)); //done
 }
+
+//done
+void convolute(float output[3][3],float input[3][3], float kernel[3][3])
+{
+    float convolute = 0; // This holds the convolution results for an index.
+    int x, y; // Used for input matrix index
+
+	// Fill output matrix: rows and columns are i and j respectively
+	for (int i = 0; i < 6; i++)
+	{
+		for (int j = 0; j < 6; j++)
+		{
+			x = i;
+			y = j;
+
+			// Kernel rows and columns are k and l respectively
+			for (int k = 0; k < 3; k++)
+			{
+				for (int l = 0; l < 3; l++)
+				{
+					// Convolute here.
+					convolute += kernel[k][l] * input[x][y];
+					y++; // Move right.
+				}
+				x++; // Move down.
+				y = j; // Restart column position
+			}
+			output[i][j] = convolute; // Add result to output matrix.
+			convolute = 0; // Needed before we move on to the next index.
+		}
+	}
+}
+
 
 void Visualization::applyGaussianBlur(std::vector<float> &scalarValues)
 {
@@ -525,8 +559,15 @@ void Visualization::applyGaussianBlur(std::vector<float> &scalarValues)
     // First, define a 3x3 matrix for the kernel.
     // (Use a C-style 2D array, a std::array of std::array's, or a std::vector of std::vectors)
     // ...
+    float kernel_gauss[3][3] = {{1.0,2.0,1.0}, {2.0,4.0,2.0}, {1.0,2.0,1.0}};
+    float output_arr[3][3];
 
-    qDebug() << "Gaussian blur not implemented";
+    // std::vector<double> v;
+    float* scalarValues2 = &scalarValues[0];
+    convolute(output_arr, scalarValues2, kernel_gauss);
+    std::vector<float> scalarValues(scalarValues2, scalarValues2 + sizeof scalarValues2 / sizeof scalarValues2[0]);
+
+    // qDebug() << "Gaussian blur not implemented";
 }
 
 void Visualization::applyGradients(std::vector<float> &scalarValues)

@@ -1,7 +1,7 @@
 QT       += core gui
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets opengl
-
+QMAKE_CXXFLAGS += -std=c++17
 greaterThan(QT_MAJOR_VERSION, 5): QT += openglwidgets
 
 TARGET = Smoke

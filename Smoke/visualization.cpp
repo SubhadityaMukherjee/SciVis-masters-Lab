@@ -525,34 +525,29 @@ void Visualization::applyQuantization(std::vector<float> &scalarValues)
     mainWindowPtr->on_scalarDataMappingClampingMaxSlider_valueChanged(static_cast<int>(L)); //done
 }
 
-//done
-void convolute(float output[3][3],float input[3][3], float kernel[3][3])
+void Visualization::convolute(std::vector<float> &output, std::vector<float> &input, std::vector<std::vector<float>> &kernel)
 {
-    float convolute = 0; // This holds the convolution results for an index.
-    int x, y; // Used for input matrix index
-
 	// Fill output matrix: rows and columns are i and j respectively
-	for (int i = 0; i < 6; i++)
+    for (size_t i = 0; i < m_DIM; ++i)
 	{
-		for (int j = 0; j < 6; j++)
-		{
-			x = i;
-			y = j;
+        for (size_t j = 0; j < m_DIM; ++j)
+        {
+            float convoluteSum = 0.0F;
 
 			// Kernel rows and columns are k and l respectively
-			for (int k = 0; k < 3; k++)
-			{
-				for (int l = 0; l < 3; l++)
+            for (size_t k = 0; k < 3; ++k)
+            {
+                for (size_t l = 0; l < 3; ++l)
 				{
-					// Convolute here.
-					convolute += kernel[k][l] * input[x][y];
-					y++; // Move right.
-				}
-				x++; // Move down.
-				y = j; // Restart column position
-			}
-			output[i][j] = convolute; // Add result to output matrix.
-			convolute = 0; // Needed before we move on to the next index.
+                    // Convolute here.
+                    if ((i == 0 && k == 0) || (i == m_DIM-1 && k == 2)) continue; // x value is out of bounds, so ignore this field
+                    if ((j == 0 && l == 0) || (j == m_DIM-1 && l == 2)) continue; // y value is out of bounds, so ignore this field
+                    size_t x = i + k - 1;
+                    size_t y = j + l - 1;
+                    convoluteSum += input[x + m_DIM * y] * kernel[k][l];
+                }
+            }
+            output[i + m_DIM * j] = convoluteSum; // Add result to output matrix.
 		}
 	}
 }
@@ -563,16 +558,11 @@ void Visualization::applyGaussianBlur(std::vector<float> &scalarValues)
     // Implement Gaussian blur here, applied on the values of the scalarValues container.
     // First, define a 3x3 matrix for the kernel.
     // (Use a C-style 2D array, a std::array of std::array's, or a std::vector of std::vectors)
-    // ...
-    float kernel_gauss[3][3] = {{1.0,2.0,1.0}, {2.0,4.0,2.0}, {1.0,2.0,1.0}};
-    float output_arr[3][3];
+    std::vector<std::vector<float>> kernel_gauss{{1.0,2.0,1.0}, {2.0,4.0,2.0}, {1.0,2.0,1.0}};
+    std::vector<float> output_arr; // reserve space for an m_DIM x m_DIM matrix below
+    output_arr.reserve(scalarValues.size());
 
-    // std::vector<double> v;
-    float* scalarValues2 = &scalarValues[0];
-    convolute(output_arr, scalarValues2, kernel_gauss);
-    std::vector<float> scalarValues(scalarValues2, scalarValues2 + sizeof scalarValues2 / sizeof scalarValues2[0]);
-
-    // qDebug() << "Gaussian blur not implemented";
+    Visualization::convolute(output_arr, scalarValues, kernel_gauss);
 }
 
 void Visualization::applyGradients(std::vector<float> &scalarValues)

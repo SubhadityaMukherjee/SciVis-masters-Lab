@@ -526,45 +526,68 @@ void Visualization::applyQuantization(std::vector<float> &scalarValues)
 }
 
 void Visualization::convolute(std::vector<float> &output, std::vector<float> &input, std::vector<std::vector<float>> &kernel)
+//TODO add circular convolution?
 {
 	// Fill output matrix: rows and columns are i and j respectively
-    for (size_t i = 0; i < m_DIM; ++i)
+    for (size_t i = 0, j=0; i < m_DIM, j<m_DIM; ++i, ++j)
 	{
-        for (size_t j = 0; j < m_DIM; ++j)
-        {
             float convoluteSum = 0.0F;
-
 			// Kernel rows and columns are k and l respectively
-            for (size_t k = 0; k < 3; ++k)
+            for (size_t k = 0, l = 0; k < 3, l<3; ++k, ++l)
             {
-                for (size_t l = 0; l < 3; ++l)
-				{
                     // Convolute here.
                     if ((i == 0 && k == 0) || (i == m_DIM-1 && k == 2)) continue; // x value is out of bounds, so ignore this field
                     if ((j == 0 && l == 0) || (j == m_DIM-1 && l == 2)) continue; // y value is out of bounds, so ignore this field
                     size_t x = i + k - 1;
                     size_t y = j + l - 1;
                     convoluteSum += input[x + m_DIM * y] * kernel[k][l];
-                }
             }
             output[i + m_DIM * j] = convoluteSum; // Add result to output matrix.
-		}
 	}
 }
 
+// void Visualization::convolute(std::vector<float> &output, std::vector<float> &input, std::vector<std::vector<float>> &kernel)
+// //TODO add circular convolution?
+// {
+// 	// Fill output matrix: rows and columns are i and j respectively
+//     for (size_t i = 0; i < m_DIM; ++i)
+// 	{
+//         for (size_t j = 0; j < m_DIM; ++j)
+//         {
+//             float convoluteSum = 0.0F;
+
+// 			// Kernel rows and columns are k and l respectively
+//             for (size_t k = 0; k < 3; ++k)
+//             {
+//                 for (size_t l = 0; l < 3; ++l)
+// 				{
+//                     // Convolute here.
+//                     if ((i == 0 && k == 0) || (i == m_DIM-1 && k == 2)) continue; // x value is out of bounds, so ignore this field
+//                     if ((j == 0 && l == 0) || (j == m_DIM-1 && l == 2)) continue; // y value is out of bounds, so ignore this field
+//                     size_t x = i + k - 1;
+//                     size_t y = j + l - 1;
+//                     convoluteSum += input[x + m_DIM * y] * kernel[k][l];
+//                 }
+//             }
+//             output[i + m_DIM * j] = convoluteSum; // Add result to output matrix.
+// 		}
+// 	}
+// }
 
 void Visualization::applyGaussianBlur(std::vector<float> &scalarValues)
 {
     // Implement Gaussian blur here, applied on the values of the scalarValues container.
     // First, define a 3x3 matrix for the kernel.
     // (Use a C-style 2D array, a std::array of std::array's, or a std::vector of std::vectors)
-    std::vector<std::vector<float>> kernel_gauss{{1.0,2.0,1.0}, {2.0,4.0,2.0}, {1.0,2.0,1.0}};
-    std::vector<float> output_arr; // reserve space for an m_DIM x m_DIM matrix below
-    output_arr.reserve(scalarValues.size());
 
-    Visualization::convolute(output_arr, scalarValues, kernel_gauss);
+    std::vector<std::vector<float>> kernel_gauss{{1.0/16,2.0/16,1.0/16}, {2.0/16,4.0/16,2.0/16}, {1.0/16,2.0/16,1.0/16}};
+    // std::vector<float> output_arr; // reserve space for an m_DIM x m_DIM matrix below
+    // output_arr.reserve(scalarValues.size());
+    Visualization::convolute(scalarValues, scalarValues, kernel_gauss);
+    // scalarValues = output_arr;
 }
 
+static inline double computeSquare (float x) { return x*x; }
 void Visualization::applyGradients(std::vector<float> &scalarValues)
 {
     // Implement Gradient extraction here, applied on the values of the scalarValues container.
@@ -575,7 +598,25 @@ void Visualization::applyGradients(std::vector<float> &scalarValues)
     // Calculate the Gradient direction
     // apply the Gradient magnitude to the scalarValues.
 
-    qDebug() << "applyGradients not implemented";
+    std::vector<std::vector<float>> kernel_x{{-1.0, 0.0, 1.0}, {-2.0, 0.0, 2.0}, {-1.0, 0.0, 1.0}};
+    std::vector<std::vector<float>> kernel_y{{-1.0, -2.0, -1.0}, {0.0, 0.0, 0.0}, {1.0, 2.0, 1.0}};
+    
+    // reserve space
+    std::vector<float> output_x, output_y, dir; 
+    output_x.reserve(scalarValues.size());
+    output_y.reserve(scalarValues.size());
+
+    Visualization::convolute(output_x, scalarValues, kernel_x);
+    Visualization::convolute(output_y, scalarValues, kernel_y);
+
+    // mag = sqrt((output_x)^2 + (output_y)^2)
+    // dir = tan-1(output_y/output_x);
+    std::transform(output_x.begin(), output_x.end(), output_x.begin(), computeSquare);
+    std::transform(output_y.begin(), output_y.end(), output_y.begin(), computeSquare);
+    std::transform(scalarValues.begin(), scalarValues.end(), output_x.begin(),result.begin(), std::plus<double>());
+    std::transform(scalarValues.begin(), scalarValues.end(), output_y.begin(),result.begin(), std::plus<double>());
+    std::transform(scalarValues.begin(), scalarValues.end(), scalarValues.begin(), (double(*)(double)) sqrt);
+
 }
 
 void Visualization::applySlicing(std::vector<float> &scalarValues)

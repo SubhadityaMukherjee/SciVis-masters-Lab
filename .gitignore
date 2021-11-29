@@ -137,6 +137,5 @@ dmypy.json
 .pyre/
 
 # Added by hand
-Smoke/Smoke.pro.user
-Smoke/Smoke.pro.user.*
+Smoke/Smoke.pro.*
 build-*

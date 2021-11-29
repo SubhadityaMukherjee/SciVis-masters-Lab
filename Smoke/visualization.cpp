@@ -524,55 +524,32 @@ void Visualization::applyQuantization(std::vector<float> &scalarValues)
     mainWindowPtr->on_scalarDataMappingClampingMaxSlider_valueChanged(100 * static_cast<int>(L));
 }
 
-//void Visualization::convolute(std::vector<float> &output, std::vector<float> &input, std::vector<std::vector<float>> &kernel)
-////TODO add circular convolution?
-//{
-//    // Fill output matrix: rows and columns are i and j respectively
-//    for (size_t i = 0, j=0; i < m_DIM, j<m_DIM; ++i, ++j)
-//    {
-//        float convoluteSum = 0.0F;
-//        // Kernel rows and columns are k and l respectively
-//        for (size_t k = 0, l = 0; k < 3, l<3; ++k, ++l)
-//        {
-//            // Convolute here.
-//            if ((i == 0 && k == 0) || (i == m_DIM-1 && k == 2)) continue; // x value is out of bounds, so ignore this field
-//            if ((j == 0 && l == 0) || (j == m_DIM-1 && l == 2)) continue; // y value is out of bounds, so ignore this field
-//            size_t x = i + k - 1;
-//            size_t y = j + l - 1;
-//            convoluteSum += input[x + m_DIM * y] * kernel[k][l];
-//        }
-//        output[i + m_DIM * j] = convoluteSum; // Add result to output matrix.
-//    }
-//}
-
  void Visualization::convolute(std::vector<float> &scalarValues, std::vector<std::vector<float>> &kernel)
  //TODO add circular convolution?
  {
     std::vector<float> input(scalarValues);
 
     // Fill output matrix: rows and columns are i and j respectively
-     for (size_t i = 0; i < m_DIM; ++i)
+    for (unsigned long i = 0; i < m_DIM; ++i)
     {
-         for (size_t j = 0; j < m_DIM; ++j)
+         for (unsigned long j = 0; j < m_DIM; ++j)
          {
              float convoluteSum = 0.0F;
-             int kernelSum = 0;
 
             // Kernel rows and columns are k and l respectively
-             for (size_t k = 0; k < 3; ++k)
+             for (unsigned long k = 0; k < 3; ++k)
              {
-                 for (size_t l = 0; l < 3; ++l)
+                 for (unsigned long l = 0; l < 3; ++l)
                 {
                      // Convolute here.
                      if ((i == 0 && k == 0) || (i == m_DIM-1 && k == 2)) continue; // x value is out of bounds, so ignore this field
                      if ((j == 0 && l == 0) || (j == m_DIM-1 && l == 2)) continue; // y value is out of bounds, so ignore this field
-                     size_t x = i + k - 1;
-                     size_t y = j + l - 1;
+                     unsigned long x = i + k - 1;
+                     unsigned long y = j + l - 1;
                      convoluteSum += input[x + m_DIM * y] * kernel[k][l];
-                     kernelSum += kernel[k][l];
                  }
              }
-             scalarValues[i + m_DIM * j] = convoluteSum / (float) kernelSum; // Add result to output matrix.
+             scalarValues[i + m_DIM * j] = convoluteSum; // Add result to output matrix.
         }
     }
  }
@@ -583,8 +560,8 @@ void Visualization::applyGaussianBlur(std::vector<float> &scalarValues)
     // First, define a 3x3 matrix for the kernel.
     // (Use a C-style 2D array, a std::array of std::array's, or a std::vector of std::vectors)
 
-//    std::vector<std::vector<float>> kernel_gauss{{1.0/16,2.0/16,1.0/16}, {2.0/16,4.0/16,2.0/16}, {1.0/16,2.0/16,1.0/16}};
-    std::vector<std::vector<float>> kernel_gauss{{1.0, 2.0, 1.0}, {2.0,4.0,2.0}, {1.0,2.0,1.0}};
+    std::vector<std::vector<float>> kernel_gauss{{1.0/16,2.0/16,1.0/16}, {2.0/16,4.0/16,2.0/16}, {1.0/16,2.0/16,1.0/16}};
+//    std::vector<std::vector<float>> kernel_gauss{{1.0, 2.0, 1.0}, {2.0,4.0,2.0}, {1.0,2.0,1.0}};
     Visualization::convolute(scalarValues, kernel_gauss);
 }
 
@@ -597,31 +574,40 @@ void Visualization::applyGradients(std::vector<float> &scalarValues)
     // Implement Gradient extraction here, applied on the values of the scalarValues container.
     // First, define a 3x3 Sobel kernels (for x and y directions).
     // (Use a C-style 2D array, a std::array of std::array's, or a std::vector of std::vectors)
+    std::vector<std::vector<float>> kernel_x{{1.0, 0.0, -1.0}, {2.0, 0.0, -2.0}, {1.0, 0.0, -1.0}}; // kernel to detect horizontal edges
+    std::vector<std::vector<float>> kernel_y{{1.0, 2.0, 1.0}, {0.0, 0.0, 0.0}, {-1.0, -2.0, -1.0}}; // kernel to detect vertical edges
+
     // Convolve the values of the scalarValues container with the Sobel kernels
+    std::vector<float> output_x(scalarValues); // copy the values of scalarValues into output_x
+    std::vector<float> output_y(scalarValues);
+
+    Visualization::convolute(output_x, kernel_x); // store the approximate partial derivatives in the x direction into output_x
+    Visualization::convolute(output_y, kernel_y);
+
     // Calculate the Gradient magnitude
-    // Calculate the Gradient direction
-    // apply the Gradient magnitude to the scalarValues.
-
-    std::vector<std::vector<float>> kernel_x{{1.0, 0.0, -1.0}, {2.0, 0.0, -2.0}, {1.0, 0.0, -1.0}};
-    std::vector<std::vector<float>> kernel_y{{1.0, 2.0, 1.0}, {0.0, 0.0, 0.0}, {-1.0, -2.0, -1.0}};
-
-    // reserve space
-    std::vector<float> output_x, output_y, dir;
-    output_x.reserve(scalarValues.size());
-    output_y.reserve(scalarValues.size());
-
-//    Visualization::convolute(output_x, scalarValues, kernel_x);
-//    Visualization::convolute(output_y, scalarValues, kernel_y);
-
     // mag = sqrt((output_x)^2 + (output_y)^2)
-    // dir = tan-1(output_y/output_x);
-    std::transform(output_x.begin(), output_x.end(), output_x.begin(), computeSquare);
-    std::transform(output_y.begin(), output_y.end(), output_y.begin(), computeSquare);
-    std::transform(scalarValues.begin(), scalarValues.end(), output_x.begin(),scalarValues.begin(), std::plus<double>());
-    std::transform(scalarValues.begin(), scalarValues.end(), output_y.begin(),scalarValues.begin(), std::plus<double>());
-    std::transform(scalarValues.begin(), scalarValues.end(), scalarValues.begin(), (double(*)(double)) sqrt);
+    std::vector<float> mag;
+    mag.reserve(output_x.size());
+    for (size_t i = 0; i < output_x.size(); ++i)
+    {
+        float val = computeSquare(output_x[i]) + computeSquare(output_y[i]);
+        mag.push_back(val);
+    }
 
+    // Calculate the Gradient direction
+    // dir = tan-1(output_y/output_x);
+    std::vector<float> dir;
+    dir.reserve(output_x.size());
+    for (size_t i = 0; i < output_x.size(); ++i)
+    {
+        float val = atan(output_y[i] / output_x[i]);
+        dir.push_back(val);
+    } // TODO dir currently not used
+
+    // apply the Gradient magnitude to the scalarValues.
+    std::copy(mag.begin(), mag.end(), scalarValues.begin());
 }
+
 void Visualization::applySlicing(std::vector<float> &scalarValues)
 {
     // Update window, the most recent scalar values are in index 0

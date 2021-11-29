@@ -561,7 +561,6 @@ void Visualization::applyGaussianBlur(std::vector<float> &scalarValues)
     // (Use a C-style 2D array, a std::array of std::array's, or a std::vector of std::vectors)
 
     std::vector<std::vector<float>> kernel_gauss{{1.0/16,2.0/16,1.0/16}, {2.0/16,4.0/16,2.0/16}, {1.0/16,2.0/16,1.0/16}};
-//    std::vector<std::vector<float>> kernel_gauss{{1.0, 2.0, 1.0}, {2.0,4.0,2.0}, {1.0,2.0,1.0}};
     Visualization::convolute(scalarValues, kernel_gauss);
 }
 

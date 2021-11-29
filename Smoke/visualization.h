@@ -181,7 +181,7 @@ class Visualization : public QOpenGLWidget, protected QOpenGLFunctions_3_3_Core
 
     // Gaussian blur
     bool m_useGaussianBlur = false;
-    void convolute(std::vector<float> &output, std::vector<float> &input, std::vector<std::vector<float>> &kernel);
+    void convolute(std::vector<float> &input, std::vector<std::vector<float>> &kernel);
     void applyGaussianBlur(std::vector<float> &scalarValues);
 
     // Gradients

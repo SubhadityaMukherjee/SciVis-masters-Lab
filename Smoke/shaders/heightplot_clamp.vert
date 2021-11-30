@@ -6,7 +6,7 @@ layout (location = 1) in float height;
 layout (location = 2) in float value_in;
 layout (location = 3) in vec3 vertNormals_in;
 
-// heigh value
+// height value
 out float value;
 // depicts the brightness of the color
 out float shading;

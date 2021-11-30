@@ -24,7 +24,7 @@ void MainWindow::on_densitySpinBox_valueChanged(double value)
 void MainWindow::on_viscositySlider_valueChanged(int value)
 {
     auto const visualizationPtr = findChildSafe<Visualization*>("visualizationOpenGLWidget");
-    visualizationPtr->m_simulation.setViscosity(static_cast<float>(value) / (10.0f * 1000.F));
+    visualizationPtr->m_simulation.setViscosity(static_cast<float>(value) / (10.0F * 1000.0F));
 }
 
 void MainWindow::on_viscositySpinBox_valueChanged(double value)

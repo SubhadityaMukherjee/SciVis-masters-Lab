@@ -27,7 +27,7 @@
        <bool>true</bool>
       </property>
       <property name="currentIndex">
-       <number>1</number>
+       <number>2</number>
       </property>
       <widget class="QWidget" name="SimulationSettingsPage">
        <property name="autoFillBackground">
@@ -1124,7 +1124,10 @@
            <item row="1" column="0">
             <widget class="QSlider" name="isolinesRangeRhoMinSlider">
              <property name="maximum">
-              <number>10</number>
+              <number>100</number>
+             </property>
+             <property name="value">
+              <number>5</number>
              </property>
              <property name="orientation">
               <enum>Qt::Horizontal</enum>
@@ -1134,10 +1137,10 @@
            <item row="3" column="0">
             <widget class="QSlider" name="isolinesRangeRhoMaxSlider">
              <property name="maximum">
-              <number>10</number>
+              <number>100</number>
              </property>
              <property name="value">
-              <number>10</number>
+              <number>5</number>
              </property>
              <property name="orientation">
               <enum>Qt::Horizontal</enum>
@@ -1170,7 +1173,7 @@
               <double>0.100000000000000</double>
              </property>
              <property name="value">
-              <double>0.000000000000000</double>
+              <double>0.500000000000000</double>
              </property>
             </widget>
            </item>
@@ -1186,7 +1189,7 @@
               <double>0.100000000000000</double>
              </property>
              <property name="value">
-              <double>10.000000000000000</double>
+              <double>0.500000000000000</double>
              </property>
             </widget>
            </item>

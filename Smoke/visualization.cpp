@@ -13,8 +13,6 @@
 #include <array>
 #include <cmath>
 #include <vector>
-constexpr int MOD = 998244353; //done
-#include <bits/stdc++.h> //done
 
 Visualization::Visualization(QWidget *parent) : QOpenGLWidget(parent)
 {
@@ -505,14 +503,11 @@ void Visualization::applyQuantization(std::vector<float> &scalarValues)
     // Apply quantization to std::vector<unsigned int> image here.
     // The variable m_quantizationBits ('n' in the lecture slides) is set in the GUI and can be used here.
     // L needs to be set to the appropriate value and will be used to set the clamping range in the GUI.
-    unsigned int const L = pow(2, m_quantizationBits) - 1; // The number of colors that will be used to visualize the image, minus one.
-    float const colorRange = 255.0F / (float)(L + 1); // The range of each color, i.e. the subset of the range [0, 255] that represents one color.
+    // ..
 
-    for (size_t i = 0; i < image.size(); ++i) {
-        unsigned int colorIdx = (unsigned int) ( ((float) image[i]) / colorRange );
-        if (colorIdx > L) colorIdx = L; // Set values of 255 to the last color.
-        image[i] = colorIdx;
-    }
+    unsigned int const L = 1U; // placeholder value
+    qDebug() << "Quantization not implemented";
+
 
     // Convert the image's data back to floating point values, so that it can be processed as usual.
     scalarValues = std::vector<float>{image.cbegin(), image.cend()};
@@ -523,36 +518,6 @@ void Visualization::applyQuantization(std::vector<float> &scalarValues)
     mainWindowPtr->on_scalarDataMappingClampingMaxSlider_valueChanged(0);
     mainWindowPtr->on_scalarDataMappingClampingMaxSlider_valueChanged(100 * static_cast<int>(L));
 }
-
- void Visualization::convolute(std::vector<float> &scalarValues, std::vector<std::vector<float>> &kernel)
- //TODO add circular convolution?
- {
-    std::vector<float> input(scalarValues);
-
-    // Fill output matrix: rows and columns are i and j respectively
-    for (unsigned long i = 0; i < m_DIM; ++i)
-    {
-         for (unsigned long j = 0; j < m_DIM; ++j)
-         {
-             float convoluteSum = 0.0F;
-
-            // Kernel rows and columns are k and l respectively
-             for (unsigned long k = 0; k < 3; ++k)
-             {
-                 for (unsigned long l = 0; l < 3; ++l)
-                {
-                     // Convolute here.
-                     if ((i == 0 && k == 0) || (i == m_DIM-1 && k == 2)) continue; // x value is out of bounds, so ignore this field
-                     if ((j == 0 && l == 0) || (j == m_DIM-1 && l == 2)) continue; // y value is out of bounds, so ignore this field
-                     unsigned long x = i + k - 1;
-                     unsigned long y = j + l - 1;
-                     convoluteSum += input[x + m_DIM * y] * kernel[k][l];
-                 }
-             }
-             scalarValues[i + m_DIM * j] = convoluteSum; // Add result to output matrix.
-        }
-    }
- }
 
 void Visualization::applyGaussianBlur(std::vector<float> &scalarValues)
 {
@@ -605,40 +570,6 @@ void Visualization::applyGradients(std::vector<float> &scalarValues)
 
     // apply the Gradient magnitude to the scalarValues.
     std::copy(mag.begin(), mag.end(), scalarValues.begin());
-}
-
-void Visualization::applySlicing(std::vector<float> &scalarValues)
-{
-    // Update window, the most recent scalar values are in index 0
-    m_scalarValuesWindow.pop_back();
-    m_scalarValuesWindow.push_front(scalarValues);
-
-    Q_ASSERT(m_sliceIdx < m_DIM);
-
-    std::vector<float> tmp;
-    switch (m_slicingDirection)
-    {
-    case SlicingDirection::x:
-        // xIdx is constant
-        for (size_t yIdx = 0U; yIdx < m_DIM; ++yIdx)
-            for (size_t tIdx = 0U; tIdx < m_DIM; ++tIdx)
-                tmp.push_back(m_scalarValuesWindow[tIdx][m_DIM * yIdx + m_sliceIdx]);
-        break;
-
-    case SlicingDirection::y:
-        // yIdx is constant
-        for (size_t xIdx = 0U; xIdx < m_DIM; ++xIdx)
-            for (size_t tIdx = 0U; tIdx < m_DIM; ++tIdx)
-                tmp.push_back(m_scalarValuesWindow[tIdx][m_DIM * m_sliceIdx + xIdx]);
-        break;
-
-    case SlicingDirection::t:
-        // t is constant. This is simply a 'regular' slice in time
-        tmp = m_scalarValuesWindow[m_sliceIdx];
-        break;
-    }
-
-    scalarValues = tmp;
 }
 
 void Visualization::applyPreprocessing(std::vector<float> &scalarValues)

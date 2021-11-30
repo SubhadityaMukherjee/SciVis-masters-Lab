@@ -113,16 +113,11 @@ void MainWindow::on_scalarDataCustomColorPickerPushButton_clicked()
     QColor const colorFromUI = QColorDialog::getColor(previousColor, this);
     if (colorFromUI.isValid())
     {
-        // qreal r, g, b;
-        // colorFromUI.getRgbF(&r, &g, &b);
-        // Color const customColor{static_cast<float>(r), static_cast<float>(g), static_cast<float>(b)};
-	
         Color const customColor{static_cast<float>(colorFromUI.redF()),
-                    static_cast<float>(colorFromUI.greenF()),
-                    static_cast<float>(colorFromUI.blueF())};
+                                static_cast<float>(colorFromUI.greenF()),
+                                static_cast<float>(colorFromUI.blueF())};
 	
         *selectedColorPtr = customColor;
-
         updateScalarDataColorMapGlobally();
     }
     else

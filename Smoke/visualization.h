@@ -59,7 +59,7 @@ class Visualization : public QOpenGLWidget, protected QOpenGLFunctions_3_3_Core
     MappingType m_currentMappingType = MappingType::Clamping;
     float m_scalarDataScale = 0.1F;
     float m_clampMin = 0.0F;                                              // Minimum density we want to visualize.
-    float m_clampMax = static_cast<float>(m_simulation.rhoInjected());    // Maximum density we want to visualize.
+    float m_clampMax = 1.0F;                                              // Maximum density we want to visualize.
     float m_transferK = 1.0F;                                             // The K in the transfer function: t(f) = f^K.
 
     // Custom color map. Only used for scalar data
@@ -71,8 +71,8 @@ class Visualization : public QOpenGLWidget, protected QOpenGLFunctions_3_3_Core
     bool m_manuallyChooseIsolineDataType = false;
     size_t m_numberOfIsolines = 1U;
     Isoline::InterpolationMethod m_isolineInterpolationMethod = Isoline::InterpolationMethod::Linear;
-    float m_isolineMinValue = 0.0F;
-    float m_isolineMaxValue = 10.0F;
+    float m_isolineMinValue = 0.5F;
+    float m_isolineMaxValue = 0.5F;
     QVector3D m_isolineColor{1.0F, 1.0F, 1.0F};
 
     // Height plot info
@@ -167,10 +167,10 @@ class Visualization : public QOpenGLWidget, protected QOpenGLFunctions_3_3_Core
 
     QMatrix3x3 m_normalTransformationMatrix;
 
-    QVector4D m_materialConstants{0.5f, 0.5f, 1.0f, 5.0f};
+    QVector4D m_materialConstants{0.5F, 0.5F, 1.0F, 5.0F};
     QVector3D m_lightPosition{300.0F, 300.0F, 200.0F};
 
-    MovingAverage<QVector2D> m_minMaxDensity{60, {0.0f, 0.0f}};
+    MovingAverage<QVector2D> m_minMaxDensity{60, {0.0F, 0.0F}};
 
     void applyPreprocessing(std::vector<float> &scalarValues);
 
@@ -181,7 +181,6 @@ class Visualization : public QOpenGLWidget, protected QOpenGLFunctions_3_3_Core
 
     // Gaussian blur
     bool m_useGaussianBlur = false;
-    void convolute(std::vector<float> &input, std::vector<std::vector<float>> &kernel);
     void applyGaussianBlur(std::vector<float> &scalarValues);
 
     // Gradients

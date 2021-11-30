@@ -16,18 +16,10 @@ void MainWindow::on_isolinesColorPickerButton_clicked()
     QColor const colorFromUI = QColorDialog::getColor(Qt::yellow, this);
     if (colorFromUI.isValid())
     {
-        // double r, g, b;
-        // colorFromUI.getRgbF(&r, &g, &b);
-        // QVector3D isolineColor{static_cast<float>(r), static_cast<float>(g), static_cast<float>(b)};
-
-        /*
-        Color const isolineColor{static_cast<float>(colorFromUI.redF()),
-                     static_cast<float>(colorFromUI.greenF()),
-                     static_cast<float>(colorFromUI.blueF())};
-         */
-
         auto const visualizationPtr = findChildSafe<Visualization*>("visualizationOpenGLWidget");
-        visualizationPtr->m_isolineColor = {static_cast<float>(colorFromUI.redF()), static_cast<float>(colorFromUI.greenF()), static_cast<float>(colorFromUI.blueF())};
+        visualizationPtr->m_isolineColor = {static_cast<float>(colorFromUI.redF()),
+                                            static_cast<float>(colorFromUI.greenF()),
+                                            static_cast<float>(colorFromUI.blueF())};
     }
     else
         qDebug() << "Color dialog did not return a valid color.";
@@ -90,14 +82,12 @@ void MainWindow::on_isolinesRangeRhoMaxSpinBox_valueChanged(double value)
 
 void MainWindow::on_isolinesRangeRhoMinSlider_valueChanged(int value)
 {
-    auto const visualizationPtr = findChildSafe<Visualization*>("visualizationOpenGLWidget");
-    ui->isolinesRangeRhoMinSpinBox->setValue(static_cast<double>(value));
+    ui->isolinesRangeRhoMinSpinBox->setValue(static_cast<double>(value / 10.0));
 }
 
 void MainWindow::on_isolinesRangeRhoMaxSlider_valueChanged(int value)
 {
-    auto const visualizationPtr = findChildSafe<Visualization*>("visualizationOpenGLWidget");
-    ui->isolinesRangeRhoMaxSpinBox->setValue(static_cast<double>(value));
+    ui->isolinesRangeRhoMaxSpinBox->setValue(static_cast<double>(value / 10.0));
 }
 
 void MainWindow::on_isolinesInterpolationMethodLinearRadioButton_toggled(bool checked)

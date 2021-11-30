@@ -15,9 +15,9 @@ class Simulation
     size_t m_numberOfSamples = m_DIM * m_DIM;
     long m_numberOfSamplesLong = static_cast<long>(m_numberOfSamples);
 
-    float m_dt = 0.4f;                  // Simulation time step.
-    float m_viscosity = 0.001f;         // Fluid viscosity.
-    float m_rhoInjected = 10.0f;        // The amount of desity which is injected.
+    float m_dt = 0.4F;                  // Simulation time step.
+    float m_viscosity = 0.001F;         // Fluid viscosity.
+    float m_rhoInjected = 10.0F;        // The amount of density which is injected.
 
     typedef std::vector<float, fftwf_malloc_allocator<float>> fftwf_vector;
     fftwf_vector m_vx, m_vy;      // (vx,vy)   = velocity field at the current moment.

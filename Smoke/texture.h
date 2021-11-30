@@ -16,6 +16,7 @@ public:
     static std::vector<Color> createBlueYellowTexture(size_t const numberOfColors);
     static std::vector<Color> createTwoColorTexture(Color const color1, Color const color2, size_t const numberOfColors);
     static std::vector<Color> createThreeColorTexture(Color const color1, Color const color2, Color const color3, size_t const numberOfColors);
+    static Color interpolate(std::vector<Color> colormap, float const x);
 };
 
 #endif // TEXTURE_H

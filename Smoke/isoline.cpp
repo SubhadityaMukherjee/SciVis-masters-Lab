@@ -1,5 +1,5 @@
 #include "isoline.h"
-
+#include <iostream>
 #include <QDebug>
 
 Isoline::Isoline(std::vector<float> const &values,
@@ -25,15 +25,35 @@ Isoline::Isoline(std::vector<float> const &values,
     }
 }
 
+
 void Isoline::marchingSquaresNonInterpolated()
 {
+    std::vector<bool> binary;
+    binary.reserve(m_values.size());
+
+    // Create binary matrix based on m_isolinesRho
+    for (size_t j = 0U; j < (m_DIM - 1U); ++j)
+    {
+        for (size_t i = 0U; i < (m_DIM - 1U); ++i)
+        {
+            // Insert code here...
+            binary[i + m_DIM * j] = m_values[i + m_DIM * j] > m_isolineRho? 1 : 0;
+            std::cout << binary[i + m_DIM * j];
+        }
+    }
+
     // Loop over the bottom left corner of each square
     for (size_t j = 0U; j < (m_DIM - 1U); ++j)
     {
         for (size_t i = 0U; i < (m_DIM - 1U); ++i)
         {
             // Insert code here...
-            size_t tableIdx = 0U; // placeholder value
+            size_t temp_val = binary[i + m_DIM * (j+1)] << 1;
+            temp_val = temp_val || binary[(i+1) + m_DIM * (j+1)] << 1;
+            temp_val = temp_val || binary[(i+1) + m_DIM * j];
+            temp_val = temp_val || binary[i + m_DIM * j] << 1;
+
+            size_t tableIdx = temp_val; // placeholder value
 
             // For drawing offset the cells a little to the right and up to make it match the scalar field.
             QVector2D const bottomLeft{static_cast<float>(i + 1U) * m_cellSideLength,

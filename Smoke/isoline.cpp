@@ -37,8 +37,8 @@ void Isoline::marchingSquaresNonInterpolated()
         for (size_t i = 0U; i < (m_DIM - 1U); ++i)
         {
             // Insert code here...
-            binary[i + m_DIM * j] = m_values[i + m_DIM * j] > m_isolineRho? 1 : 0;
-            std::cout << binary[i + m_DIM * j];
+            binary[i + m_DIM * j] = m_values[i + m_DIM * j] > m_isolineRho;
+            //std::cout << binary[i + m_DIM * j];
         }
     }
 
@@ -48,10 +48,10 @@ void Isoline::marchingSquaresNonInterpolated()
         for (size_t i = 0U; i < (m_DIM - 1U); ++i)
         {
             // Insert code here...
-            size_t temp_val = binary[i + m_DIM * (j+1)] << 1;
-            temp_val = temp_val || binary[(i+1) + m_DIM * (j+1)] << 1;
-            temp_val = temp_val || binary[(i+1) + m_DIM * j];
-            temp_val = temp_val || binary[i + m_DIM * j] << 1;
+            size_t temp_val = (size_t) binary[i + m_DIM * (j+1)] << 1;
+            temp_val += (size_t) binary[(i+1) + m_DIM * (j+1)] << 1;
+            temp_val += (size_t) binary[(i+1) + m_DIM * j] << 1;
+            temp_val += (size_t) binary[i + m_DIM * j];
 
             size_t tableIdx = temp_val; // placeholder value
 
@@ -261,10 +261,20 @@ void Isoline::case2NonInterpolated([[maybe_unused]] QVector2D const &bottomLeft)
 
 void Isoline::case3NonInterpolated([[maybe_unused]] QVector2D const &bottomLeft)
 {
+    QVector2D const v_out_0{bottomLeft + QVector2D{0.0F, 0.5F * m_cellSideLength}};
+    QVector2D const v_out_1{bottomLeft + QVector2D{1.0F * m_cellSideLength, 0.5F * m_cellSideLength}};
+
+    m_vertices.push_back(v_out_0);
+    m_vertices.push_back(v_out_1);
 }
 
 void Isoline::case4NonInterpolated([[maybe_unused]] QVector2D const &bottomLeft)
 {
+    QVector2D const v_out_0{bottomLeft + QVector2D{0.5F * m_cellSideLength, 1.0F * m_cellSideLength}};
+    QVector2D const v_out_1{bottomLeft + QVector2D{1.0F * m_cellSideLength, 0.5F * m_cellSideLength}};
+
+    m_vertices.push_back(v_out_0);
+    m_vertices.push_back(v_out_1);
 }
 
 void Isoline::case5NonInterpolated([[maybe_unused]] QVector2D const &bottomLeft)

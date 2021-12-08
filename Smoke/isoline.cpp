@@ -36,9 +36,7 @@ void Isoline::marchingSquaresNonInterpolated()
     {
         for (size_t i = 0U; i < (m_DIM - 1U); ++i)
         {
-            // Insert code here...
             binary[i + m_DIM * j] = m_values[i + m_DIM * j] > m_isolineRho;
-            //std::cout << binary[i + m_DIM * j];
         }
     }
 
@@ -47,13 +45,10 @@ void Isoline::marchingSquaresNonInterpolated()
     {
         for (size_t i = 0U; i < (m_DIM - 1U); ++i)
         {
-            // Insert code here...
-            size_t temp_val = (size_t) binary[i + m_DIM * (j+1)] << 1;
-            temp_val += (size_t) binary[(i+1) + m_DIM * (j+1)] << 1;
-            temp_val += (size_t) binary[(i+1) + m_DIM * j] << 1;
-            temp_val += (size_t) binary[i + m_DIM * j];
-
-            size_t tableIdx = temp_val; // placeholder value
+            size_t tableIdx = (size_t) binary[i + m_DIM * (j+1)] << 1; // v3, top left
+            tableIdx = (tableIdx + (size_t) binary[(i+1) + m_DIM * (j+1)]) << 1; // v2, top right
+            tableIdx = (tableIdx + (size_t) binary[(i+1) + m_DIM * j]) << 1; // v1, bottom right
+            tableIdx = (tableIdx + (size_t) binary[i + m_DIM * j]); // v0, bottom left
 
             // For drawing offset the cells a little to the right and up to make it match the scalar field.
             QVector2D const bottomLeft{static_cast<float>(i + 1U) * m_cellSideLength,
@@ -257,6 +252,11 @@ void Isoline::case1NonInterpolated(QVector2D const &bottomLeft)
 
 void Isoline::case2NonInterpolated([[maybe_unused]] QVector2D const &bottomLeft)
 {
+    QVector2D const v_out_0{bottomLeft + QVector2D{0.5F * m_cellSideLength, 0.0F}};
+    QVector2D const v_out_1{bottomLeft + QVector2D{1.0F * m_cellSideLength, 0.5F * m_cellSideLength}};
+
+    m_vertices.push_back(v_out_0);
+    m_vertices.push_back(v_out_1);
 }
 
 void Isoline::case3NonInterpolated([[maybe_unused]] QVector2D const &bottomLeft)
@@ -270,8 +270,8 @@ void Isoline::case3NonInterpolated([[maybe_unused]] QVector2D const &bottomLeft)
 
 void Isoline::case4NonInterpolated([[maybe_unused]] QVector2D const &bottomLeft)
 {
-    QVector2D const v_out_0{bottomLeft + QVector2D{0.5F * m_cellSideLength, 1.0F * m_cellSideLength}};
-    QVector2D const v_out_1{bottomLeft + QVector2D{1.0F * m_cellSideLength, 0.5F * m_cellSideLength}};
+    QVector2D const v_out_0{bottomLeft + QVector2D{1.0F * m_cellSideLength, 0.5F * m_cellSideLength}};
+    QVector2D const v_out_1{bottomLeft + QVector2D{0.5F * m_cellSideLength, 1.0F * m_cellSideLength}};
 
     m_vertices.push_back(v_out_0);
     m_vertices.push_back(v_out_1);
@@ -279,44 +279,73 @@ void Isoline::case4NonInterpolated([[maybe_unused]] QVector2D const &bottomLeft)
 
 void Isoline::case5NonInterpolated([[maybe_unused]] QVector2D const &bottomLeft)
 {
+    // Same as case 1 plus case 4
+    Isoline::case1NonInterpolated(bottomLeft);
+    Isoline::case4NonInterpolated(bottomLeft);
 }
 
 void Isoline::case6NonInterpolated([[maybe_unused]] QVector2D const &bottomLeft)
 {
+    QVector2D const v_out_0{bottomLeft + QVector2D{0.5F * m_cellSideLength, 0.0F}};
+    QVector2D const v_out_1{bottomLeft + QVector2D{0.5F * m_cellSideLength, 1.0F * m_cellSideLength}};
+
+    m_vertices.push_back(v_out_0);
+    m_vertices.push_back(v_out_1);
 }
 
 void Isoline::case7NonInterpolated([[maybe_unused]] QVector2D const &bottomLeft)
 {
+    QVector2D const v_out_0{bottomLeft + QVector2D{0.0F, 0.5F * m_cellSideLength}};
+    QVector2D const v_out_1{bottomLeft + QVector2D{0.5F * m_cellSideLength, 1.0F * m_cellSideLength}};
+
+    m_vertices.push_back(v_out_0);
+    m_vertices.push_back(v_out_1);
 }
 
 void Isoline::case8NonInterpolated([[maybe_unused]] QVector2D const &bottomLeft)
 {
+    // Same as case 7
+    Isoline::case7NonInterpolated(bottomLeft);
 }
 
 void Isoline::case9NonInterpolated([[maybe_unused]] QVector2D const &bottomLeft)
 {
+    // Same as case 6
+    Isoline::case6NonInterpolated(bottomLeft);
 }
 
 void Isoline::case10NonInterpolated([[maybe_unused]] QVector2D const &bottomLeft)
 {
+    // Same as case 2 plus case 7
+    Isoline::case2NonInterpolated(bottomLeft);
+    Isoline::case7NonInterpolated(bottomLeft);
 }
 
 void Isoline::case11NonInterpolated([[maybe_unused]] QVector2D const &bottomLeft)
 {
+    // Same as case 4
+    Isoline::case4NonInterpolated(bottomLeft);
 }
 
 void Isoline::case12NonInterpolated([[maybe_unused]] QVector2D const &bottomLeft)
 {
+    // Same as case 3
+    Isoline::case3NonInterpolated(bottomLeft);
 }
 
 void Isoline::case13NonInterpolated([[maybe_unused]] QVector2D const &bottomLeft)
 {
+    // Same as case 2
+    Isoline::case2NonInterpolated(bottomLeft);
 }
 
 void Isoline::case14NonInterpolated([[maybe_unused]] QVector2D const &bottomLeft)
 {
+    // Same as case 1
+    Isoline::case1NonInterpolated(bottomLeft);
 }
 
 void Isoline::case15NonInterpolated([[maybe_unused]] QVector2D const &bottomLeft)
 {
+    // Nothing, same as case 0
 }

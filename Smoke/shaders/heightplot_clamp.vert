@@ -27,15 +27,7 @@ uniform vec3 lightPosition;
 void main()
 {
     gl_Position = viewTransform * projectionTransform * vec4(vertCoordinates_in, height, 1.0F);
-
-    // nonsense placeholder values
-    //value = clampMin + clampMax;
-//(value < clampMin){
-//       value = clampMin;
-//    }else if(value > clampMax){
- //       value = clampMax;
-  //  }
-value = clamp(value, clampMin, clampMax);
+    value = clamp(value, clampMin, clampMax);
     shading = transferK + material.x + lightPosition.x;
     heightChange = normalTransform[0][0];
 }

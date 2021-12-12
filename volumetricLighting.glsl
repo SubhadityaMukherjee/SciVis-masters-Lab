@@ -43,7 +43,7 @@ const float EPS = 0.000001;
 
 /**
  *	Returns whether a given point is inside a given sphere.
- *  
+ *
  * 	@param point The point that is tested against the sphere.
  * 	@param sphere The sphere parameters. xyz = position, w = radius
  *	@return True, when the point is inside the sphere, false otherwise
@@ -51,7 +51,7 @@ const float EPS = 0.000001;
 bool isInSphere(vec3 point, vec4 sphere)
 {
     vec3 spherePos = sphere.xyz;
-    
+
     if(length(point - spherePos) <= sphere.w)
         return true;
     else
@@ -60,15 +60,15 @@ bool isInSphere(vec3 point, vec4 sphere)
 
 /**
  *	Returns whether a given point is inside a given cube.
- *  
+ *
  * 	@param point The point that is tested against the cube.
  * 	@param cube The cube parameters. xyz = position, w = half of the cube width
  *	@return True, when the point is inside the cube, false otherwise
  */
 bool isInCube(vec3 point, vec4 cube)
 {
-	vec3 dist = abs(point.xyz - cube.xyz);
-    
+        vec3 dist = abs(point.xyz - cube.xyz);
+
     if(all(lessThan(dist, vec3(cube.w))))
         return true;
     else return false;
@@ -85,24 +85,24 @@ float sampleVolume(vec3 volumeCoord)
     bool in1 = isInCube(volumeCoord, sphere1);
     bool in2 = isInCube(volumeCoord, sphere2);
     bool in3 = isInSphere(volumeCoord, sphere3);
-    
+
     float result = 0.0;
-    
+
     if(in1)
-    	result += s1Dens;
-    
+        result += s1Dens;
+
     if(in2)
         result += s2Dens;
-    
+
     if(in3)
         result += s3Dens;
-    
+
     return result;
 }
 
 /**
  *	Evaluates the transfer function for a given sample value
- * 	
+ *
  *	@param value The sample value
  *	@return The color for the given sample value
  */
@@ -110,13 +110,13 @@ vec4 transferFunction(float value)
 {
     if(value > EPS)
     {
-    	if(value > s1Dens + EPS)
+        if(value > s1Dens + EPS)
         {
-        	if(value > s2Dens + EPS)
-            {   
-            	if(value > s1Dens + s2Dens + EPS)
+                if(value > s2Dens + EPS)
+            {
+                if(value > s1Dens + s2Dens + EPS)
                 {
-                	return vec4(0, 0, 0, 1.0);
+                        return vec4(0, 0, 0, 1.0);
                 }
                 return vec4(1, 0, 0, 1.0);
             }
@@ -129,7 +129,7 @@ vec4 transferFunction(float value)
 
 /**
  *	Intersects a ray with the bounding box and returs the intersection points
- * 	
+ *
  * 	@param rayOrig The origin of the ray
  * 	@param rayDir The direction of the ray
  *  @param tNear OUT: The distance from the ray origin to the first intersection point
@@ -138,19 +138,19 @@ vec4 transferFunction(float value)
  */
 bool intersectBoundingBox(vec3 rayOrig, vec3 rayDir, out float tNear, out float tFar)
 {
-	vec3 invR = vec3(1.0) / rayDir;
+        vec3 invR = vec3(1.0) / rayDir;
     vec3 tbot = invR * (bbMin - rayOrig);
     vec3 ttop = invR * (bbMax - rayOrig);
-    
+
     vec3 tmin = min(ttop, tbot);
     vec3 tmax = max(ttop, tbot);
-    
+
     float largestTMin = max(max(tmin.x, tmin.y), max(tmin.x, tmin.z));
     float smallestTMax = min(min(tmax.x, tmax.y), min(tmax.x, tmax.z));
-    
+
     tNear = largestTMin;
     tFar = smallestTMax;
-    
+
     return (smallestTMax > largestTMin);
 }
 
@@ -159,11 +159,22 @@ bool intersectBoundingBox(vec3 rayOrig, vec3 rayDir, out float tNear, out float 
  *	@param pos The postion from which the gradient should be determined
  *	@return The gradient at pos.
  */
-vec3 gradientCentral(vec3 pos)
+float fun(in vec3 p) {
+    return dot(p,p)-1.; // sphere
+    //return p.x*p.y+p.x*p.z+p.y*p.z+1.; // hyperboloid
+    //float e = p.x*p.x+2.*p.y*p.y+p.z*p.z;
+        //return e*e*e-(9.*p.x*p.x+p.y*p.y)*p.z*p.z*p.z-.5;
+}
+vec3 gradientCentral(vec3 p)
 {
-	vec3 result;
-	//TODO: Insert codes here
-    return result;
+/**
+float h = 0.1;
+        vec3 result = (.5/h)*vec3(
+        fun(p+vec3(h,0,0))-fun(p-vec3(h,0,0)),
+        fun(p+vec3(0,h,0))-fun(p-vec3(0,h,0)),
+        fun(p+vec3(0,0,h))-fun(p-vec3(0,0,h)));
+    **/
+    return p;
 }
 
 /**
@@ -174,8 +185,8 @@ vec3 gradientCentral(vec3 pos)
  */
 vec3 gradientIntermediate(vec3 pos)
 {
-	vec3 result;
-	//TODO: Insert codes here
+        vec3 result;
+        //TODO: Insert codes here
     return result;
 }
 
@@ -190,17 +201,18 @@ vec3 gradientIntermediate(vec3 pos)
  */
 vec4 lighting(vec4 diffuseColor, vec3 normal, vec3 eyeDir)
 {
-	// TODO: Insert codes here!
-    vec4 ambient; //= ka * lightColor * ambientColor;
-    vec4 diffuse; //= kd * lightColor * diffuseColor * max(dot(n, l), 0.0);
-    vec4 specular; //= ks * lightColor * specularColor * pow(max(dot(n, h), 0.0), exponent);
-    
-	vec4 color = ambient + diffuse + specular + diffuseColor;
+    // TODO Insert code here
+    vec4 color;
+
+  vec3 reflectDir = reflect(-lightDir, normal);
+  float specDot = max(dot(reflectDir, eyeDir), 0.0);
+  color += pow(specDot, exponent) * specularColor;
+
     return color;
 }
 
 /**
- *	Main Function: 
+ *	Main Function:
  *  Computes the color for the given fragment.
  *
  *	@param fragColor OUT: The color of the pixel / fragment.
@@ -208,62 +220,62 @@ vec4 lighting(vec4 diffuseColor, vec3 normal, vec3 eyeDir)
  */
 void mainImage( out vec4 fragColor, in vec2 fragCoord )
 {
-	vec2 uv = fragCoord.xy / iResolution.xy;
+        vec2 uv = fragCoord.xy / iResolution.xy;
     float aspect = iResolution.x / iResolution.y;
-    
+
     /******************** compute camera parameters ********************/
-    
-    // camera movement  
+
+    // camera movement
     float camSpeed = 0.5;
     vec3 camPos = 7.0 * vec3(cos(iTime*camSpeed), 0.5, sin(iTime*camSpeed));
     vec3 camDir = -normalize(camPos);
     vec3 camUp = vec3(0.0, 1.0, 0.0);
     vec3 camRight = normalize(cross(camDir, camUp));
     camUp = normalize(cross(camRight, camDir));
-    
+
     /************ compute ray direction (OpenGL style) *****************/
     vec2 myUV = 2.0 * uv - 1.0;
     float fovx = 2.0 * atan(tan(fovy / 2.0) * aspect);
-    
+
     vec3 uL = (tan(fovx*0.5)*zNear) * (-camRight) + (tan(fovy*0.5) * zNear) * camUp + camDir * zNear + camPos;
     vec3 lL = (tan(fovx*0.5)*zNear) * (-camRight) + (tan(fovy*0.5) * zNear) * (-camUp) + camDir * zNear + camPos;
     vec3 uR = (tan(fovx*0.5)*zNear) * camRight + (tan(fovy*0.5) * zNear) * camUp + camDir * zNear + camPos;
     vec3 lR = (tan(fovx*0.5)*zNear) * camRight + (tan(fovy*0.5) * zNear) * (-camUp) + camDir * zNear + camPos;
-    
+
     vec3 targetL = mix(lL, uL, uv.y);
     vec3 targetR = mix(lR, uR, uv.y);
     vec3 target = mix(targetL, targetR, uv.x);
-    
+
     vec3 rayDir = normalize(target - camPos);
-    
+
     /******************* test against bounding box ********************/
     float tNear, tFar;
     bool hit = intersectBoundingBox(camPos, rayDir, tNear, tFar);
        vec4 background = vec4(1.0);
     if(tNear < 0.0)
         tNear = 0.0;
-    
+
     if(!hit)
     {
         fragColor = background;
         return;
     }
-    
+
     vec3 pos = camPos + rayDir * tNear;
     float tstep = (bbMax.x - bbMin.x) / float(sampleNum);
     vec4 finalColor = vec4(0);
     vec3 finalGradient = vec3(0);
-    
+
     /******************** main raycasting loop *******************/
     for(int i = 0; i < sampleNum; i++)
     {
         if(finalColor.a > 0.99)
             break; // early ray termination!
-    	pos += tstep * rayDir;
+        pos += tstep * rayDir;
         float sampleValue = sampleVolume(pos);
         vec4 color = transferFunction(sampleValue);
 
-        
+
         #ifdef USE_INTERMEDIATE
         vec3 grad = gradientIntermediate(pos);
         #else
@@ -273,9 +285,9 @@ void mainImage( out vec4 fragColor, in vec2 fragCoord )
         vec3 grad = vec3(0);
         #endif // USE_CENTRAL
         #endif // USE_INTERMEDIATE
-        
-    
-   	 /****************** lighting ********************************/  
+
+
+         /****************** lighting ********************************/
         {
            finalGradient = grad;
         }

@@ -17,8 +17,10 @@ void main()
     // TODO:
     // - Use the height value to obtain the correct color from the color map.
     // - Use the height change variable to show areas of low change in gray and areas of large change in color (use linear interpolation).
-    vec3 placeholder = texture(textureSampler, value).rgb * shading * heightChange * 5.0F; // Replace this
-    //vec3 placeholder = texture(textureSampler, value).rgb * shading * heightChange * 5.0F; // Replace this
-    //vec3 colors = texture(textureSampler, value).rgb;
+    vec3 placeholder = texture(textureSampler, value).rgb; // Replace this
+
+    // Linear interpolation for shading based on height change
+    placeholder = placeholder * shading * heightChange * 5.0F;
+
     color = vec4(placeholder, 1.0F);
 }

@@ -50,6 +50,12 @@ void Isoline::marchingSquaresNonInterpolated()
             tableIdx = (tableIdx + (size_t) binary[(i+1) + m_DIM * j]) << 1; // v1, bottom right
             tableIdx = (tableIdx + (size_t) binary[i + m_DIM * j]); // v0, bottom left
 
+            // Asymptotic decider
+            if (tableIdx == 5 || tableIdx == 10) // Ambibuous cases
+            {
+                // TODO
+            }
+
             // For drawing offset the cells a little to the right and up to make it match the scalar field.
             QVector2D const bottomLeft{static_cast<float>(i + 1U) * m_cellSideLength,
                                        static_cast<float>(j + 1U) * m_cellSideLength};

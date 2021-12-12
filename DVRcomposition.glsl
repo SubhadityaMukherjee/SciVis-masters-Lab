@@ -36,7 +36,7 @@ const vec3 colorNode2 = vec3(1, 0, 0);  // red
 
 // Choose technique
 // TODO: set technique 
-const int technique = 0; // technique = 0: accumulation, 1: maximum intensity projection, 2: average intensity
+const int technique = 2; // technique = 0: accumulation, 1: maximum intensity projection, 2: average intensity
 
 vec2 csqr(vec2 a)
 {
@@ -152,8 +152,8 @@ void accumulation(float value, float sampleRatio, inout vec4 composedColor)
 	vec4 color = transferFunction(value);
 	color.a = opacityCorrection(color.a, sampleRatio);
 
-	// TODO: Implement Front-to-back blending
-	composedColor = vec4(0.5);
+	// DONE: Implement Front-to-back blending
+    composedColor = composedColor + color * color.a;
 }
 
 /**
@@ -166,7 +166,11 @@ void accumulation(float value, float sampleRatio, inout vec4 composedColor)
  */
 void maximumIntensity(float value, inout float maxIntense)
 { 
-    // TODO: Record maximum intensity along the ray.
+    // DONE: Record maximum intensity along the ray.
+    if (value > maxIntense)
+    {
+        maxIntense = value;
+    }
 }
 
 /**
@@ -179,7 +183,9 @@ void maximumIntensity(float value, inout float maxIntense)
  */
 void sumIntensity(float value, inout float sumIntense, inout int hitCount)
 {
-    // TODO: sum up the intensity along the ray.     
+    // TODO: sum up the intensity along the ray.
+    sumIntense += value;
+    hitCount += 1;
 }
 
 /**
@@ -264,18 +270,22 @@ void mainImage(out vec4 fragColor, in vec2 fragCoord)
     }
 
     
-    // TODO: Determine final color:
+    // DONE: Determine final color:
     if (technique == 0)
     {
-        // TODO: color for accumulation
+        // DONE: color for accumulation, finalColor already set in accumulation function
     }
     else if (technique == 1)
     {
-        // TODO: color for max. intensity projection
+        // DONE: color for max. intensity projection
+        finalColor = vec4(colorNode1, maxIntense);
     }
     else if (technique == 2)
     {
-        // TODO: color for average intensity
+        // DONE: color for average intensity
+        float count = float(hitCount);
+        float intensity = sumIntense / count;
+        finalColor = vec4(colorNode1, intensity);
     }
 
     fragColor = finalColor * finalColor.a + (1.0 - finalColor.a) * background;

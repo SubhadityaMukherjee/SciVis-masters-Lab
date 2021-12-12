@@ -1,7 +1,7 @@
 // TODO If you want to change from central to intermediate differences, do it here by commenting/uncommenting
 // the corresponding define
-#define USE_CENTRAL
-//#define USE_INTERMEDIATE
+//#define USE_CENTRAL
+#define USE_INTERMEDIATE
 
 // first three coordinates: position
 // w-component: radius
@@ -206,9 +206,9 @@ vec4 lighting(vec4 diffuseColor, vec3 normal, vec3 eyeDir)
     vec3 reflDir = 2.0F * dot(normal, lightDir) * normal - lightDir; // R = 2(L.N)N - L
     
     vec4 ambient = diffuseColor * ka;
-    vec4 diffuse = diffuseColor * kd * dot(lightDir, normal);
-    vec4 specular = specularColor * ks * pow(dot(reflDir, eyeDir), exponent);    
-    return diffuse;
+    vec4 diffuse = diffuseColor * kd * max(dot(lightDir, normal), 0.0F);
+    vec4 specular = specularColor * ks * pow(max(dot(reflDir, eyeDir), 0.0F), exponent);    
+    return ambient + diffuse + specular;
 }
 
 /**

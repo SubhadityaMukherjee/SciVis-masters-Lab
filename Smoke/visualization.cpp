@@ -1027,7 +1027,17 @@ void Visualization::drawHeightplot()
 
 std::vector<QVector3D> Visualization::computeNormals(std::vector<float> heights)
 {
-    return std::vector<QVector3D>(heights.size(), QVector3D(0,0,1));
+    std::vector<std::vector<float>> kernel_x{{1.0, 0.0, -1.0}, {2.0, 0.0, -2.0}, {1.0, 0.0, -1.0}}; // kernel to detect horizontal edges
+    std::vector<std::vector<float>> kernel_y{{1.0, 2.0, 1.0}, {0.0, 0.0, 0.0}, {-1.0, -2.0, -1.0}}; // kernel to detect vertical edges
+
+    std::vector<float> scalarValues(heights); // copy the values of scalarValues into output_x
+    std::vector<float> heightValues(heights);
+
+    Visualization::convolute(scalarValues, kernel_x); // store the approximate partial derivatives in the x direction into output_x
+    Visualization::convolute(heightValues, kernel_y);
+   std::vector<QVector3D> qVec = std::vector<QVector3D>(scalarValues.begin(), scalarValues.end());
+
+    return qVec;
 }
 
 // drag: When the user drags with the mouse, add a force that corresponds to the direction of the mouse

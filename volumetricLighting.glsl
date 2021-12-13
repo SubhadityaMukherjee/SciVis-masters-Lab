@@ -1,7 +1,7 @@
 // TODO If you want to change from central to intermediate differences, do it here by commenting/uncommenting
 // the corresponding define
-#define USE_CENTRAL
-//#define USE_INTERMEDIATE
+//#define USE_CENTRAL
+#define USE_INTERMEDIATE
 
 // first three coordinates: position
 // w-component: radius
@@ -25,8 +25,8 @@ const float zNear = 0.1;
 // light direction
 const vec3 lightDir = vec3(1.0, -1.0, -1.0);
 
-const vec4 lightColor = vec4(1.0F);
-const vec4 specularColor = vec4(1.0F);
+const vec4 lightColor = vec4(1.0);
+const vec4 specularColor = vec4(1.0);
 const float ka = 0.5;  // ambient contribution
 const float kd = 0.5;  // diffuse contribution
 const float ks = 0.7;  // specular contribution
@@ -162,13 +162,13 @@ bool intersectBoundingBox(vec3 rayOrig, vec3 rayDir, out float tNear, out float 
 vec3 gradientCentral(vec3 pos)
 {
 	//DONE: Insert codes here
-    float x = sampleVolume(pos + vec3(voxelWidth, 0.0F, 0.0F));
-    float y = sampleVolume(pos + vec3(0.0F, voxelWidth, 0.0F));
-    float z = sampleVolume(pos + vec3(0.0F, 0.0F, voxelWidth));
+    float x = sampleVolume(pos + vec3(voxelWidth, 0.0, 0.0));
+    float y = sampleVolume(pos + vec3(0.0, voxelWidth, 0.0));
+    float z = sampleVolume(pos + vec3(0.0, 0.0, voxelWidth));
     
-    float x_min1 = sampleVolume(pos - vec3(voxelWidth, 0.0F, 0.0F));
-    float y_min1 = sampleVolume(pos - vec3(0.0F, voxelWidth, 0.0F));
-    float z_min1 = sampleVolume(pos - vec3(0.0F, 0.0F, voxelWidth));
+    float x_min1 = sampleVolume(pos - vec3(voxelWidth, 0.0, 0.0));
+    float y_min1 = sampleVolume(pos - vec3(0.0, voxelWidth, 0.0));
+    float z_min1 = sampleVolume(pos - vec3(0.0, 0.0, voxelWidth));
     
     return vec3(x - x_min1, y - y_min1, z - z_min1); // Using kernel [-1 0 1]
 }
@@ -184,9 +184,9 @@ vec3 gradientIntermediate(vec3 pos)
 	//DONE: Insert codes here
     // Forward difference
     float center = sampleVolume(pos);
-    float x = sampleVolume(pos + vec3(voxelWidth, 0.0F, 0.0F));
-    float y = sampleVolume(pos + vec3(0.0F, voxelWidth, 0.0F));
-    float z = sampleVolume(pos + vec3(0.0F, 0.0F, voxelWidth));
+    float x = sampleVolume(pos + vec3(voxelWidth, 0.0, 0.0));
+    float y = sampleVolume(pos + vec3(0.0, voxelWidth, 0.0));
+    float z = sampleVolume(pos + vec3(0.0, 0.0, voxelWidth));
     
     return vec3(x - center, y - center, z - center); // Using kernel [-1 1]
 }
@@ -203,11 +203,11 @@ vec3 gradientIntermediate(vec3 pos)
 vec4 lighting(vec4 diffuseColor, vec3 normal, vec3 eyeDir)
 {
     // DONE Insert code here
-    vec3 reflDir = normalize(2.0F * dot(normal, lightDir) * normal - lightDir); // R = 2(L.N)N - L
+    vec3 reflDir = normalize(2.0 * dot(normal, lightDir) * normal - lightDir); // R = 2(L.N)N - L
     
     vec4 ambient = diffuseColor * ka;
-    vec4 diffuse = diffuseColor * kd * max(dot(lightDir, normal), 0.0F);
-    vec4 specular = specularColor * ks * pow(max(dot(reflDir, eyeDir), 0.0F), exponent);    
+    vec4 diffuse = diffuseColor * kd * max(dot(lightDir, normal), 0.0);
+    vec4 specular = specularColor * ks * pow(max(dot(reflDir, eyeDir), 0.0), exponent);    
     return ambient + diffuse + specular;
 }
 

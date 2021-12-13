@@ -25,7 +25,7 @@ void main()
 {
     gl_Position = viewTransform * projectionTransform * vec4(vertCoordinates_in, height, 1.0F);
 
-    // nonsense placeholder values
+    value = clamp(value, clampMin, clampMax);
     value = rangeMin + rangeMax;
     shading = transferK + material.x + lightPosition.x;
     heightChange = normalTransform[0][0];

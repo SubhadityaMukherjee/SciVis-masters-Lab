@@ -203,11 +203,12 @@ vec3 gradientIntermediate(vec3 pos)
 vec4 lighting(vec4 diffuseColor, vec3 normal, vec3 eyeDir)
 {
     // DONE Insert code here
-    vec3 reflDir = normalize(2.0F * dot(normal, lightDir) * normal - lightDir); // R = 2(L.N)N - L
+    // vec3 reflDir = normalize(2.0F * dot(normal, lightDir) * normal - lightDir); // R = 2(L.N)N - L // Phong shading
+    vec3 H = normalize(lightDir + eyeDir); // Blinn-Phong shading
     
     vec4 ambient = diffuseColor * ka;
     vec4 diffuse = diffuseColor * kd * max(dot(lightDir, normal), 0.0F);
-    vec4 specular = specularColor * ks * pow(max(dot(reflDir, eyeDir), 0.0F), exponent);    
+    vec4 specular = specularColor * ks * pow(max(dot(normal, H), 0.0F), exponent);    
     return ambient + diffuse + specular;
 }
 

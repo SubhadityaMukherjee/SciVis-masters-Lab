@@ -36,7 +36,7 @@ const vec3 colorNode2 = vec3(1, 0, 0);  // red
 
 // Choose technique
 // TODO: set technique 
-const int technique = 2; // technique = 0: accumulation, 1: maximum intensity projection, 2: average intensity
+const int technique = 0; // technique = 0: accumulation, 1: maximum intensity projection, 2: average intensity
 
 vec2 csqr(vec2 a)
 {
@@ -149,11 +149,16 @@ float opacityCorrection(in float alpha, in float samplingRatio)
  */
 void accumulation(float value, float sampleRatio, inout vec4 composedColor)
 {
-	vec4 color = transferFunction(value);
-	color.a = opacityCorrection(color.a, sampleRatio);
+	vec4 color = transferFunction(value);              // color_CUR
+	color.a = opacityCorrection(color.a, sampleRatio); // alpha_CUR
 
 	// DONE: Implement Front-to-back blending
-    composedColor = composedColor + color * color.a;
+    float alpha_i = composedColor.a;
+    
+    vec3 color_new = composedColor.xyz + (1.0 - alpha_i) * color.xyz * color.a; // 
+    float alpha_new = alpha_i + (1.0 - alpha_i) * color.a;
+    
+    composedColor = vec4(color_new, alpha_new);
 }
 
 /**
@@ -183,7 +188,7 @@ void maximumIntensity(float value, inout float maxIntense)
  */
 void sumIntensity(float value, inout float sumIntense, inout int hitCount)
 {
-    // TODO: sum up the intensity along the ray.
+    // DONE: sum up the intensity along the ray.
     sumIntense += value;
     hitCount += 1;
 }

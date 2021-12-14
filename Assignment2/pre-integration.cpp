@@ -93,6 +93,19 @@ void writeImage(std::vector<std::array<float, 4U>> image,std::string filename="p
         std::exit(EXIT_FAILURE);
     }
 }
+void accumulation(float value, float sampleRatio, inout vec4 composedColor)
+{
+        vec4 color = transferFunction(value);              // color_CUR
+        color.a = opacityCorrection(color.a, sampleRatio); // alpha_CUR
+
+        // DONE: Implement Front-to-back blending
+    float alpha_i = composedColor.a;
+        
+    vec3 color_new = composedColor.xyz + (1.0 - alpha_i) * color.xyz * color.a; //
+    float alpha_new = alpha_i + (1.0 - alpha_i) * color.a;
+        
+    composedColor = vec4(color_new, alpha_new);
+}
 
 
 

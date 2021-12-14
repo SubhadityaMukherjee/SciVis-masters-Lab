@@ -13,13 +13,10 @@
 
 // Define colors for the colormap
 float const colorNode0[3U] = { 0.0F, 0.0F, 1.0F };  // blue
-float const colorNode1[3U] = { 0.0F, 1.0F, 0.0F };  // white
+float const colorNode1[3U] = { 1.0F, 1.0F, 1.0F };  // white
 float const colorNode2[3U] = { 1.0F, 0.0F, 0.0F };  // red
 
 float composedColor[4U] = { 0.0F };
-// Number of maximum raycasting samples per ray
-const float sampleNum = 150.0F;
-const float t = 1 / sampleNum;
 
 // TODO: modify the transferFunction and add necessary functions
 
@@ -27,7 +24,7 @@ std::array<float, 4U> transferFunction(float value)
 {
     value /= 255.0F; // to range [0...1]
     
-    float alpha = value * 0.1F; // value; ???
+    float alpha = value * 0.1F; // value;
 
     if (value < 0.2F)
         alpha = 0.0F;
@@ -59,12 +56,12 @@ std::array<float, 4U> transferFunction(float value)
     return color;
 }
 
-void writeImage(std::vector<std::array<float, 4U>> image,std::string filename="pre-integraded.ppm")
+void writeImage(std::vector<std::array<float, 4U>> image)
 {
     size_t const xDim = 256U;
     size_t const yDim = 256U;
 
-    std::ofstream outStream{filename};
+    std::ofstream outStream{"pre-integrated.ppm"};
     outStream.exceptions(std::ofstream::failbit);
 
     try
@@ -94,50 +91,24 @@ void writeImage(std::vector<std::array<float, 4U>> image,std::string filename="p
     }
 }
 
-
-
 int main()
 {
     // 2D color image
-    float color2D[256U][256U][4U] = { 0.0F };
-    
+    // float color2D[256U][256U][4U] = { 0.0F };
+
     // TODO: add pre-integration table calculations
 
     // TODO: convert obtained array to an image
-
-    for (size_t yIdx = 0U; yIdx < 256U; ++yIdx) {
-        for (size_t xIdx = 0U; xIdx < 256U; ++xIdx) {
-		// 1. Interpolation of the two scalars
-		float s_f = static_cast<float>(xIdx);
-		float s_b = static_cast<float>(yIdx);
-
-		float s_L = s_b + t / sampleNum * (s_f - s_b);
-		// 2. Apply transfer function
-		std::array<float, 4U> color = transferFunction(s_L);
-
-		// 3. Perform pre-integration/accumulation
-		
-
-        }
-    }
 
     // you can use writeImage function to save the image (as in the example) or
     // use any libraries (e.g. ImageMagick or OpenCV) you would like
     std::vector<std::array<float, 4U>> image;
     for (size_t yIdx = 0U; yIdx < 256U; ++yIdx)
-        for (size_t xIdx = 0U; xIdx < 256U; ++xIdx){
-            std::array<float, 4U> color0 = transferFunction(static_cast<float>(yIdx));
-            image.emplace_back(color0);
-	}
-
-    
-    //for (size_t yIdx = 0U; yIdx < 256U; ++yIdx)
-    //    for (size_t xIdx = 0U; xIdx < 256U; ++xIdx)
-    //        image.emplace_back(std::array<float, 4U>{static_cast<float>(yIdx) / 255.0F,
-    //                                                 static_cast<float>(xIdx) / 255.0F,
-    //                                                 static_cast<float>(255U - xIdx) / 255.0F,
-     //                                                255.0F});
-     
+        for (size_t xIdx = 0U; xIdx < 256U; ++xIdx)
+            image.emplace_back(std::array<float, 4U>{static_cast<float>(yIdx) / 255.0F,
+                                                     static_cast<float>(xIdx) / 255.0F,
+                                                     static_cast<float>(255U - xIdx) / 255.0F,
+                                                     255.0F});
     
     writeImage(image);
 

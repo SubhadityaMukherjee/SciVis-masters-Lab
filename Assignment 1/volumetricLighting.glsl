@@ -167,16 +167,6 @@ float fun(in vec3 p) {
 }
 vec3 gradientCentral(vec3 p)
 {
-<<<<<<< HEAD:Assignment1/volumetricLighting(1).glsl
-/**
-float h = 0.1;
-	vec3 result = (.5/h)*vec3(
-        fun(p+vec3(h,0,0))-fun(p-vec3(h,0,0)),
-        fun(p+vec3(0,h,0))-fun(p-vec3(0,h,0)),
-        fun(p+vec3(0,0,h))-fun(p-vec3(0,0,h)));
-    **/
-    return p;
-=======
 	//DONE: Insert codes here
     float x = sampleVolume(pos + vec3(voxelWidth, 0.0, 0.0));
     float y = sampleVolume(pos + vec3(0.0, voxelWidth, 0.0));
@@ -187,7 +177,6 @@ float h = 0.1;
     float z_min1 = sampleVolume(pos - vec3(0.0, 0.0, voxelWidth));
     
     return vec3(x - x_min1, y - y_min1, z - z_min1); // Using kernel [-1 0 1]
->>>>>>> development:Assignment 1/volumetricLighting.glsl
 }
 
 /**
@@ -219,16 +208,6 @@ vec3 gradientIntermediate(vec3 pos)
  */
 vec4 lighting(vec4 diffuseColor, vec3 normal, vec3 eyeDir)
 {
-<<<<<<< HEAD:Assignment1/volumetricLighting(1).glsl
-    // TODO Insert code here
-    vec4 color;
-    
-  vec3 reflectDir = reflect(-lightDir, normal);
-  float specDot = max(dot(reflectDir, eyeDir), 0.0);
-  color += pow(specDot, exponent) * specularColor;
-
-    return color;
-=======
     // DONE Insert code here
     // vec3 reflDir = normalize(2.0F * dot(normal, lightDir) * normal - lightDir); // R = 2(L.N)N - L // Phong shading
     vec3 H = normalize(lightDir + eyeDir); // Blinn-Phong shading
@@ -237,7 +216,6 @@ vec4 lighting(vec4 diffuseColor, vec3 normal, vec3 eyeDir)
     vec4 diffuse = diffuseColor * kd * max(dot(lightDir, normal), 0.0F);
     vec4 specular = specularColor * ks * pow(max(dot(normal, H), 0.0F), exponent);    
     return ambient + diffuse + specular;
->>>>>>> development:Assignment 1/volumetricLighting.glsl
 }
 
 /**

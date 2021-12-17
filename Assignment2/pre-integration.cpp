@@ -93,6 +93,10 @@ void writeImage(std::vector<std::array<float, 4U>> image,std::string filename="p
         std::exit(EXIT_FAILURE);
     }
 }
+<<<<<<< HEAD
+=======
+
+>>>>>>> development
 void accumulation(float value, float sampleRatio, inout vec4 composedColor)
 {
         vec4 color = transferFunction(value);              // color_CUR
@@ -108,7 +112,10 @@ void accumulation(float value, float sampleRatio, inout vec4 composedColor)
 }
 
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> development
 int main()
 {
     // 2D color image

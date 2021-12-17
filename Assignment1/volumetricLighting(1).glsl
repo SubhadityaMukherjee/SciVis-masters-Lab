@@ -1,7 +1,7 @@
 // TODO If you want to change from central to intermediate differences, do it here by commenting/uncommenting
 // the corresponding define
-#define USE_CENTRAL
-//#define USE_INTERMEDIATE
+//#define USE_CENTRAL
+#define USE_INTERMEDIATE
 
 // first three coordinates: position
 // w-component: radius
@@ -25,8 +25,8 @@ const float zNear = 0.1;
 // light direction
 const vec3 lightDir = vec3(1.0, -1.0, -1.0);
 
-const vec4 lightColor = vec4(1);
-const vec4 specularColor = vec4(1);
+const vec4 lightColor = vec4(1.0);
+const vec4 specularColor = vec4(1.0);
 const float ka = 0.5;  // ambient contribution
 const float kd = 0.5;  // diffuse contribution
 const float ks = 0.7;  // specular contribution
@@ -167,6 +167,7 @@ float fun(in vec3 p) {
 }
 vec3 gradientCentral(vec3 p)
 {
+<<<<<<< HEAD:Assignment1/volumetricLighting(1).glsl
 /**
 float h = 0.1;
 	vec3 result = (.5/h)*vec3(
@@ -175,6 +176,18 @@ float h = 0.1;
         fun(p+vec3(0,0,h))-fun(p-vec3(0,0,h)));
     **/
     return p;
+=======
+	//DONE: Insert codes here
+    float x = sampleVolume(pos + vec3(voxelWidth, 0.0, 0.0));
+    float y = sampleVolume(pos + vec3(0.0, voxelWidth, 0.0));
+    float z = sampleVolume(pos + vec3(0.0, 0.0, voxelWidth));
+    
+    float x_min1 = sampleVolume(pos - vec3(voxelWidth, 0.0, 0.0));
+    float y_min1 = sampleVolume(pos - vec3(0.0, voxelWidth, 0.0));
+    float z_min1 = sampleVolume(pos - vec3(0.0, 0.0, voxelWidth));
+    
+    return vec3(x - x_min1, y - y_min1, z - z_min1); // Using kernel [-1 0 1]
+>>>>>>> development:Assignment 1/volumetricLighting.glsl
 }
 
 /**
@@ -185,9 +198,14 @@ float h = 0.1;
  */
 vec3 gradientIntermediate(vec3 pos)
 {
-	vec3 result;
-	//TODO: Insert codes here
-    return result;
+	//DONE: Insert codes here
+    // Forward difference
+    float center = sampleVolume(pos);
+    float x = sampleVolume(pos + vec3(voxelWidth, 0.0, 0.0));
+    float y = sampleVolume(pos + vec3(0.0, voxelWidth, 0.0));
+    float z = sampleVolume(pos + vec3(0.0, 0.0, voxelWidth));
+    
+    return vec3(x - center, y - center, z - center); // Using kernel [-1 1]
 }
 
 /**
@@ -201,6 +219,7 @@ vec3 gradientIntermediate(vec3 pos)
  */
 vec4 lighting(vec4 diffuseColor, vec3 normal, vec3 eyeDir)
 {
+<<<<<<< HEAD:Assignment1/volumetricLighting(1).glsl
     // TODO Insert code here
     vec4 color;
     
@@ -209,6 +228,16 @@ vec4 lighting(vec4 diffuseColor, vec3 normal, vec3 eyeDir)
   color += pow(specDot, exponent) * specularColor;
 
     return color;
+=======
+    // DONE Insert code here
+    // vec3 reflDir = normalize(2.0F * dot(normal, lightDir) * normal - lightDir); // R = 2(L.N)N - L // Phong shading
+    vec3 H = normalize(lightDir + eyeDir); // Blinn-Phong shading
+    
+    vec4 ambient = diffuseColor * ka;
+    vec4 diffuse = diffuseColor * kd * max(dot(lightDir, normal), 0.0F);
+    vec4 specular = specularColor * ks * pow(max(dot(normal, H), 0.0F), exponent);    
+    return ambient + diffuse + specular;
+>>>>>>> development:Assignment 1/volumetricLighting.glsl
 }
 
 /**
@@ -251,7 +280,7 @@ void mainImage( out vec4 fragColor, in vec2 fragCoord )
     /******************* test against bounding box ********************/
     float tNear, tFar;
     bool hit = intersectBoundingBox(camPos, rayDir, tNear, tFar);
-       vec4 background = vec4(1.0);
+    vec4 background = vec4(1.0);
     if(tNear < 0.0)
         tNear = 0.0;
     

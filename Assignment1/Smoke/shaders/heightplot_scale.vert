@@ -25,8 +25,13 @@ void main()
 {
     gl_Position = viewTransform * projectionTransform * vec4(vertCoordinates_in, height, 1.0F);
 
+<<<<<<< HEAD:Assignment1/Smoke/shaders/heightplot_scale.vert
     // nonsense placeholder values
     value = clamp(value, rangeMin, rangeMax);
+=======
+    value = clamp(value, clampMin, clampMax);
+    value = rangeMin + rangeMax;
+>>>>>>> development:Assignment 1/Smoke/shaders/heightplot_scale.vert
     shading = transferK + material.x + lightPosition.x;
     heightChange = normalTransform[0][0];
 }

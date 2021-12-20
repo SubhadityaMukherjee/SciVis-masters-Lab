@@ -1,0 +1,2 @@
+gShaderToy.SetTexture(0, {mSrc:'https://github.com/SubhadityaMukherjee/SciVis-masters-Lab/blob/main/Assignment2/pre-integrated.ppm', mType:'texture', mID:1, mSampler:{ filter: 'mipmap', wrap: 'repeat', vflip:'true', srgb:'false', internal:'byte' }});
+

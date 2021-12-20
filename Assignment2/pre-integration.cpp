@@ -58,7 +58,7 @@ std::array<float, 4U> transferFunction(float value)
     return color;
 }
 
-void writeImage(std::vector<std::array<float, 4U>> image,std::string filename="pre-integraded.ppm")
+void writeImage(std::vector<std::array<float, 4U>> image,std::string filename="pre-integrated.ppm")
 {
     size_t const xDim = 256U;
     size_t const yDim = 256U;
@@ -171,7 +171,7 @@ int main()
 
     for (size_t yIdx = 0U; yIdx < 256U; ++yIdx) {
         for (size_t xIdx = 0U; xIdx < 256U; ++xIdx) {
-            // TODO: add pre-integration table calculations
+            // DONE: add pre-integration table calculations
             std::array<float, 4U> composedColor = preintegration(xIdx, yIdx);
 
             // DONE: convert obtained array to an image

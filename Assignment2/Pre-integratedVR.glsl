@@ -6,16 +6,6 @@ const vec3 bbMax = vec3(0.5, 0.5, 0.5);
 const float fovy = 45.0;
 const float zNear = 0.1;
 
-// Light direction
-const vec3 lightDir = vec3(0.0, -1.0, -1.0);
-
-const vec4 lightColor = vec4(1);
-const vec4 specularColor = vec4(1);
-const float ka = 0.5;  // ambient contribution
-const float kd = 0.5;  // diffuse contribution
-const float ks = 0.7;  // specular contribution
-const float exponent = 50.0;  // specular exponent (shininess)
-
 // Number of maximum raycasting samples per ray
 const int sampleNum = 150;
 
@@ -29,13 +19,11 @@ const float period = 2.0;
 // Sigma for the gaussian function
 const float sig = 0.4;
 
-// Colors for the colormap
-const vec3 colorNode0 = vec3(0, 0, 1);  // blue
-const vec3 colorNode1 = vec3(1, 1, 1);  // white
-const vec3 colorNode2 = vec3(1, 0, 0);  // red
-
 // TODO: add pre-integrated transfer function that can be directly used
-
+vec4 preintegratedTransferFunction(float value)
+{
+    return texture(iChannel0, vec2(value, value));
+}
 
 vec2 csqr(vec2 a)
 {
@@ -67,37 +55,6 @@ float ABCvolume(vec3 texCoord)
 float sampleVolume(vec3 texCoord)
 {
     return ABCvolume(texCoord);
-}
-
-/**
- * Evaluates the transfer function for a given sample value
- *  
- * @param value The sample value
- * @return The color for the given sample value
- */
-vec4 transferFunction(float value)
-{
-    float alpha = value * 0.1; // value;
-    if (value < 0.2)
-        alpha = 0.0;
-    
-    float t = 0.0;
-    vec3 color0 = colorNode0;
-    vec3 color1 = colorNode1;
-    if (value < 0.5)
-    {
-        t = 2.0 * value;
-    }
-    else
-    {
-        t = 2.0 * (value - 0.5);
-        color0 = colorNode1;
-        color1 = colorNode2;
-    }
-    vec4 color;
-    color.a = alpha;
-    color.rgb = color0 * (1.0 - t) + color1 * t;
-    return color;
 }
 
 /**
@@ -148,11 +105,16 @@ float opacityCorrection(in float alpha, in float samplingRatio)
  */
 void accumulation(float value, float sampleRatio, inout vec4 composedColor)
 {
-	vec4 color = transferFunction(value);
-	color.a = opacityCorrection(color.a, sampleRatio);
+    vec4 color = preintegratedTransferFunction(value); // color_CUR
+    color.a = opacityCorrection(color.a, sampleRatio); // alpha_CUR
 
-	// TODO: Add (or implement) Front-to-back compositing
-	composedColor = vec4(0.5);
+    // DONE: Implement Front-to-back blending
+    float alpha_i = composedColor.a;
+    
+    vec3 color_new = composedColor.xyz + (1.0 - alpha_i) * color.xyz * color.a;
+    float alpha_new = alpha_i + (1.0 - alpha_i) * color.a;
+    
+    composedColor = vec4(color_new, alpha_new);
 }
 
 /**
@@ -220,11 +182,11 @@ void mainImage(out vec4 fragColor, in vec2 fragCoord)
     while(t < tFar && i < sampleNum)
     {
         vec3 pos = camPos + t * rayDir;
-		// Use normalized volume coordinate
+        // Use normalized volume coordinate
         vec3 texCoord = vec3(pos.x + 0.5, pos.y + 0.5, pos.z + 0.5);
         float value = sampleVolume(texCoord);
         
-        // TODO: Modify to use the pre-integration table you generated in the previous sub-task.
+        // DONE: Modify to use the pre-integration table you generated in the previous sub-task.
         accumulation(value, sampleRatio, finalColor);
         
         t += tstep;

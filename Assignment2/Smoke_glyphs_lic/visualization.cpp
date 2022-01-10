@@ -13,6 +13,8 @@
 #include <cmath>
 #include <vector>
 
+#include <QMatrix4x4>
+
 Visualization::Visualization(QWidget *parent) : QOpenGLWidget(parent)
 {
     qDebug() << "Visualization constructor";
@@ -547,7 +549,8 @@ void Visualization::drawGlyphs()
 
     size_t const numberOfInstances = m_numberOfGlyphsX * m_numberOfGlyphsY;
 
-    std::vector<float> modelTransformationMatrices;
+//    std::vector<float> modelTransformationMatrices;
+    std::vector<QMatrix4x4> modelTransformationMatrices;
     /* Fill the container modelTransformationMatrices here...
      * Use the following variables:
      * modelTransformationMatrix: This vector should contain the result.
@@ -563,9 +566,22 @@ void Visualization::drawGlyphs()
      */
 
     // Insert code here...
-    modelTransformationMatrices = std::vector<float>(numberOfInstances * 16U, 0.0F); // Remove this placeholder initialization
+//    modelTransformationMatrices = std::vector<float>(numberOfInstances * 16U, 0.0F); // Remove this placeholder initialization
+    modelTransformationMatrices = std::vector<QMatrix4x4>(numberOfInstances, QMatrix4x4());
 
+    for(size_t i = 0; i < numberOfInstances; ++i)
+    {
+//        float mag = vectorMagnitude[i];
+//        float dirX = vectorDirectionX[i];
+//        float dirY = vectorDirectionY[i];
 
+        QMatrix4x4 matrix = QMatrix4x4(0.0F, 0.0F, 0.0F, 1.0F,
+                                       0.0F, 0.0F, 1.0F, 0.0F,
+                                       0.0F, 1.0F, 0.0F, 0.0F,
+                                       1.0F, 0.0F, 0.0F, 0.0F);
+
+        modelTransformationMatrices[i] = matrix; // Constructs an identity matrix: https://doc.qt.io/qt-5/qmatrix4x4.html
+    }
 
     // TODO: This shouldn't be here, but otherwise re-binding an already bound Glyphs VAO may cause glitches.
     glBindVertexArray(0);

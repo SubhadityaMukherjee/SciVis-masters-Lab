@@ -22,8 +22,25 @@ namespace interpolation
     {
         std::vector<float> interpolatedValues;
         
-        for (int i = 0; i < xMax; ++i){
-             interpolatedValues[i] = 0.0016;
+        // Prepare conversion from sideSize x sideSize matrix 'values' to a xMax x yMax grid 'interpolatedValues'.
+        interpolatedValues.reserve(xMax * yMax);
+        size_t const cellWidth = sideSize / xMax; // The number of columns of "values" per glyph
+        size_t const cellHeight = sideSize / yMax; // The number of rows of "values" per glyph
+
+        // Convert the sideSize x sideSize matrix 'values' to an xMax x yMax grid 'interpolatedValues'.
+        size_t newY = sideSize * cellHeight;
+        for(size_t i = 0; i < xMax; ++i)
+        {
+            for(size_t j = 0; j < yMax; ++j)
+            {
+                // Use the four points of the cell for interpolation
+                float v0 = values[newY * j + i * cellWidth]; // bottomleft
+                float v1 = values[newY * j + (i+1) * cellWidth]; // bottomright
+                float v2 = values[newY * (j+1) + (i+1) * cellWidth]; // topright
+                float v3 = values[newY * (j+1) + i * cellWidth]; // topleft
+
+                interpolatedValues[j * yMax + i] = (v0 + v1 + v2 + v3) / 4;
+            }
         }
 
         return interpolatedValues;

@@ -2,6 +2,7 @@ import numpy as np
 from matplotlib import pyplot as plt
 
 def scatterplot_with_imgs(x, y, data, ax=None, zoom=0.2):
+    print(x.shape, y.shape, data.shape)
 
     vmax = data.max()
     vmin = data.min()

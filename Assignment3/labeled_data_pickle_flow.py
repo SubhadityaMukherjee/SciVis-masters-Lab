@@ -167,6 +167,6 @@ def main():
     print(data.shape)
     print(len(names))
     print(names[0])
-    return data, names
+    return data, cylinder_names
     #print(d.values)
 

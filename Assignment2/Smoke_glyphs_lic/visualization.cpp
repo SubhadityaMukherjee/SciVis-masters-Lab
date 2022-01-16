@@ -549,8 +549,7 @@ void Visualization::drawGlyphs()
 
     size_t const numberOfInstances = m_numberOfGlyphsX * m_numberOfGlyphsY;
 
-//    std::vector<float> modelTransformationMatrices;
-    std::vector<QMatrix4x4> modelTransformationMatrices;
+    std::vector<float> modelTransformationMatrices;
     /* Fill the container modelTransformationMatrices here...
      * Use the following variables:
      * modelTransformationMatrix: This vector should contain the result.
@@ -565,22 +564,53 @@ void Visualization::drawGlyphs()
      * vectorMagnitude: Use this value to scale the glyphs. I.e. higher values are visualized using larger glyphs. Row-major, size given by the m_numberOfGlyphs*.
      */
 
-    // Insert code here...
-//    modelTransformationMatrices = std::vector<float>(numberOfInstances * 16U, 0.0F); // Remove this placeholder initialization
-    modelTransformationMatrices = std::vector<QMatrix4x4>(numberOfInstances, QMatrix4x4());
+    modelTransformationMatrices = std::vector<float>(numberOfInstances * 16U, 0.0F); // Remove this placeholder initialization
 
-    for(size_t i = 0; i < numberOfInstances; ++i)
+    float const pi = 3.14159F;
+    float const cellWidth = static_cast<float>(m_DIM) / static_cast<float>(m_numberOfGlyphsX) * m_cellWidth;
+    float const cellHeight = static_cast<float>(m_DIM) / static_cast<float>(m_numberOfGlyphsY) * m_cellHeight;
+
+    for(size_t x = 0; x < m_numberOfGlyphsX; ++x)
     {
-//        float mag = vectorMagnitude[i];
-//        float dirX = vectorDirectionX[i];
-//        float dirY = vectorDirectionY[i];
+        for(size_t y = 0; y < m_numberOfGlyphsY; ++y)
+        {
+            size_t index = m_numberOfGlyphsX * y + x;
 
-        QMatrix4x4 matrix = QMatrix4x4(0.0F, 0.0F, 0.0F, 1.0F,
-                                       0.0F, 0.0F, 1.0F, 0.0F,
-                                       0.0F, 1.0F, 0.0F, 0.0F,
-                                       1.0F, 0.0F, 0.0F, 0.0F);
+//            QMatrix4x4 matrix = QMatrix4x4(); // Constructs an identity matrix
 
-        modelTransformationMatrices[i] = matrix; // Constructs an identity matrix: https://doc.qt.io/qt-5/qmatrix4x4.html
+            // Perform transformations: scaling, translation and rotation.
+
+            // For a rotation of angle theta counter-clockwise, the transformation matrix should be:
+            // cos(theta)   -sin(theta)  0   0
+            // sin(theta)   cost(theta)  0   0
+            // 0            0            1   0
+            // 0            0            0   1
+            float theta = atan(vectorDirectionY[index] / vectorDirectionX[index]) - 0.5 * pi; // tan = opposite / adjacent
+            if (vectorDirectionX[index] < 0) // Account for the fact that the result of atan in [-pi/2, pi/2] and ignores negative x
+            {
+                theta = theta + pi; // Now in [pi/2, 3/2*pi]
+            }
+            QMatrix4x4 matrix = QMatrix4x4(cos(theta), -sin(theta), 0, 0,
+                                           sin(theta), cos(theta),  0, 0,
+                                           0,          0,           1, 0,
+                                           0,          0,           0, 1);
+//            matrix.rotate(theta / pi * 180.0F, 1.0F, 1.0F, 0.0F);
+
+            // Scaling
+            matrix.scale(1000 * vectorMagnitude[index]);
+
+            // Translation
+            QMatrix4x4 translation = QMatrix4x4(0, 0, 0, m_glyphCellWidth + cellWidth * (static_cast<float>(x) + 0.5F),
+                                                0, 0, 0, m_glyphCellHeight + cellHeight * (static_cast<float>(y) + 0.5F),
+                                                0, 0, 0, 0,
+                                                0, 0, 0, 0);
+            matrix += translation;
+//            matrix.translate(m_glyphCellWidth + cellWidth * (static_cast<float>(x) + 0.5F), m_glyphCellHeight + cellHeight * (static_cast<float>(y) + 0.5F));
+
+            // Store matrix in modelTransformationMatrices
+            std::vector<float> dat = std::vector<float> { matrix.data(), matrix.data() + 16U};
+            std::copy(dat.begin(), dat.end(), modelTransformationMatrices.begin() + index * 16U);
+        }
     }
 
     // TODO: This shouldn't be here, but otherwise re-binding an already bound Glyphs VAO may cause glitches.

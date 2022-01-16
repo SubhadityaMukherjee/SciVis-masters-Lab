@@ -28,18 +28,32 @@ Lic::Lic(unsigned int xDim, unsigned int yDim)
 ///		normalize the vector field     ///
 void Lic::normalizeVectors(std::vector<float>* vectorField_x, std::vector<float>* vectorField_y)
 {
+    size_t length = vectorField_x->size();
 
+    for (size_t i = 0; i < length; ++i)
+    {
+        float factor = sqrt(pow((*vectorField_x)[i], 2.0F) + pow((*vectorField_y)[i], 2.0F));
+        (*vectorField_x)[i] /= factor;
+        (*vectorField_y)[i] /= factor;
+    }
 }
 
 ///		make white noise as the LIC input texture     ///
 std::vector<float> Lic::generateNoiseTexture(std::vector<float> texture)
 {
+    // Seed random number generator
+    srand(time(NULL));
+
+    // Generate random values between black and white
+    generate(begin(texture), end(texture), []() { return static_cast<float>(rand() % 256); });
+
     return texture;
 }
 
 std::vector<uint8_t> Lic::mapFlowToTexture(std::vector<float> vectorField_x, std::vector<float> vectorField_y, std::vector<float> texture_in)
 {
-  std::vector<uint8_t> newTexture(dim_x*dim_y);
+    std::vector<uint8_t> newTexture(dim_x*dim_y);
+
 
 
     return newTexture;

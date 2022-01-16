@@ -15,7 +15,7 @@ namespace interpolation
      * xMax, yMax: The desired dimensions of the output vector. xMax is the horizontal size (number of columns), yMax is the vertical size (number of rows).
      *
      * Output
-     * interpolatedValues: A 1D row-major container of std::vector<float> type containing the interpolated values.
+     * interpolatedValues: A 1D row-mayor container of std::vector<float> type containing the interpolated values.
      */
     template <typename inVector>
     std::vector<float> interpolateSquareVector(inVector const &values, size_t const sideSize, size_t const xMax, size_t const yMax)
@@ -23,23 +23,39 @@ namespace interpolation
         std::vector<float> interpolatedValues;
         
         // Prepare conversion from sideSize x sideSize matrix 'values' to a xMax x yMax grid 'interpolatedValues'.
-        interpolatedValues.reserve(xMax * yMax);
-        size_t const cellWidth = sideSize / xMax; // The number of columns of "values" per glyph
-        size_t const cellHeight = sideSize / yMax; // The number of rows of "values" per glyph
+        interpolatedValues.resize(xMax * yMax);
+
+        float const cellWidth = static_cast<float>(sideSize) / static_cast<float>(xMax+1); // The number of columns of "values" per glyph
+        float const cellHeight = static_cast<float>(sideSize) / static_cast<float>(yMax+1); // The number of rows of "values" per glyph
 
         // Convert the sideSize x sideSize matrix 'values' to an xMax x yMax grid 'interpolatedValues'.
-        size_t newY = sideSize * cellHeight;
-        for(size_t i = 0; i < xMax; ++i)
+        for(float i = 0.0F; i < xMax; ++i)
         {
-            for(size_t j = 0; j < yMax; ++j)
+            for(float j = 0.0F; j < yMax; ++j)
             {
-                // Use the four points of the cell for interpolation
-                float v0 = values[newY * j + i * cellWidth]; // bottomleft
-                float v1 = values[newY * j + (i+1) * cellWidth]; // bottomright
-                float v2 = values[newY * (j+1) + (i+1) * cellWidth]; // topright
-                float v3 = values[newY * (j+1) + i * cellWidth]; // topleft
+                // Bilinear interpolation via the weighted mean: https://en.wikipedia.org/wiki/Bilinear_interpolation#Weighted_mean
+                float x = i * cellWidth;
+                float y = j * cellHeight;
 
-                interpolatedValues[j * yMax + i] = (v0 + v1 + v2 + v3) / 4;
+                size_t x1 = static_cast<size_t>(x);
+                size_t y1 = static_cast<size_t>(y);
+                size_t x2 = x1 + 1U;
+                size_t y2 = y1 + 1U;
+
+                float fx1 = static_cast<float>(x1);
+                float fx2 = static_cast<float>(x2);
+                float fy1 = static_cast<float>(y1);
+                float fy2 = static_cast<float>(y2);
+
+                float w11 = (fx2 - x) * (fy2 - y) / ((fx2 - fx1) * (fy2 - y));
+                float w12 = (fx2 - x) * (y - fy1) / ((fx2 - fx1) * (fy2 - y));
+                float w21 = (x - fx1) * (fy2 - y) / ((fx2 - fx1) * (fy2 - y));
+                float w22 = (x - fx1) * (y - fy1) / ((fx2 - fx1) * (fy2 - y));
+
+                interpolatedValues[y * xMax + x] = w11 * values[xMax * y1 + x1]
+                                                 + w12 * values[xMax * y2 + x1]
+                                                 + w21 * values[xMax * y1 + x2]
+                                                 + w22 * values[xMax * y2 + x2]; // Store in row-major format
             }
         }
 

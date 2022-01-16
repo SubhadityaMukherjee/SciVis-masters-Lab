@@ -36,6 +36,7 @@ void Lic::normalizeVectors(std::vector<float>* vectorField_x, std::vector<float>
 
     for (size_t i = 0; i < length; ++i)
     {
+        // Scale each vector to length 1
         float factor = sqrt(pow((*vectorField_x)[i], 2.0F) + pow((*vectorField_y)[i], 2.0F));
         (*vectorField_x)[i] /= factor;
         (*vectorField_y)[i] /= factor;
@@ -62,7 +63,13 @@ std::vector<uint8_t> Lic::mapFlowToTexture(std::vector<float> vectorField_x, std
 {
     std::vector<uint8_t> newTexture(dim_x*dim_y);
 
-
+    for (size_t x = 0; x < dim_x; ++x)
+    {
+        for (size_t y = 0; y < dim_y; ++y)
+        {
+            newTexture[y * dim_x + x] = static_cast<uint8_t>(texture_in[y * dim_x + x]); // row-major order
+        }
+    }
 
     return newTexture;
 }

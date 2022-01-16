@@ -13,8 +13,6 @@
 #include <cmath>
 #include <vector>
 
-#include <QMatrix4x4>
-
 Visualization::Visualization(QWidget *parent) : QOpenGLWidget(parent)
 {
     qDebug() << "Visualization constructor";
@@ -507,7 +505,6 @@ void Visualization::resizeGL(int const width, int const height)
     updateScalarPoints();
     updateLicPoints();
 }
-
 void Visualization::drawGlyphs()
 {
     std::vector<float> vectorMagnitude;

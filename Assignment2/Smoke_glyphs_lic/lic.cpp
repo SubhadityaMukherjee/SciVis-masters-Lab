@@ -2,8 +2,12 @@
 
 #include <QDebug>
 
-#include <string>
-
+#include<vector>
+#include<numeric>
+#include <random>
+#include <algorithm>
+#include <iterator>
+#include <iostream>
 
 Lic::Lic(unsigned int xDim, unsigned int yDim)
     :
@@ -36,7 +40,12 @@ void Lic::normalizeVectors(std::vector<float>* vectorField_x, std::vector<float>
         (*vectorField_x)[i] /= factor;
         (*vectorField_y)[i] /= factor;
     }
+//    float totals_x = std::inner_product( vectorField_x->begin(), vectorField_x->end(), vectorField_x->begin(), 0 );
+//    float totals_y = std::inner_product( vectorField_y->begin(), vectorField_y->end(), vectorField_y->begin(), 0 );
+//    std::for_each(vectorField_x->begin(), vectorField_x->end(), [totals_x](float &c){ c /= totals_x; });
+//    std::for_each(vectorField_y->begin(), vectorField_y->end(), [totals_y](float &c){ c /= totals_y; });
 }
+
 
 ///		make white noise as the LIC input texture     ///
 std::vector<float> Lic::generateNoiseTexture(std::vector<float> texture)
@@ -46,7 +55,6 @@ std::vector<float> Lic::generateNoiseTexture(std::vector<float> texture)
 
     // Generate random values between black and white
     generate(begin(texture), end(texture), []() { return static_cast<float>(rand() % 256); });
-
     return texture;
 }
 

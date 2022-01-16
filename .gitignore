@@ -139,3 +139,9 @@ dmypy.json
 # Added by hand
 Smoke/Smoke.pro.*
 build-*
+sampled-300-2
+*.raw
+cylinder*
+*.json
+labels_mc*
+*.pkl

@@ -6,7 +6,6 @@
 
 #include <QDebug>
 
-#include <iostream>
 namespace interpolation
 {
     /* Input

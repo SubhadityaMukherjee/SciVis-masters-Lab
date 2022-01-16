@@ -134,7 +134,7 @@ std::vector<uint8_t> Lic::mapFlowToTexture(std::vector<float> vectorField_x, std
                     x = x-1;
                 }
 
-                streamline[1 + k] = std::vector<size_t>{i, j};
+                streamline[1 + k] = std::vector<size_t>{x, y};
             }
 
             // Apply kernel: simple box blur, i.e. each pixel has a value equal to the average value of its neighbours.

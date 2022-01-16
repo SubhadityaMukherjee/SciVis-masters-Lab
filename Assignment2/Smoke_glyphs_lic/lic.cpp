@@ -54,7 +54,7 @@ std::vector<float> Lic::generateNoiseTexture(std::vector<float> texture)
     // Seed random number generator
     srand(time(NULL));
 
-    // Generate random values between black and white
+    // Generate random values: black or white
     generate(begin(texture), end(texture), []() { return static_cast<float>(rand() % 256); });
     return texture;
 }
@@ -62,12 +62,85 @@ std::vector<float> Lic::generateNoiseTexture(std::vector<float> texture)
 std::vector<uint8_t> Lic::mapFlowToTexture(std::vector<float> vectorField_x, std::vector<float> vectorField_y, std::vector<float> texture_in)
 {
     std::vector<uint8_t> newTexture(dim_x*dim_y);
+    size_t L = 10; // Fixed length to determine streamline
 
-    for (size_t x = 0; x < dim_x; ++x)
+    for (size_t i = 0; i < dim_x; ++i)
     {
-        for (size_t y = 0; y < dim_y; ++y)
+        for (size_t j = 0; j < dim_y; ++j)
         {
-            newTexture[y * dim_x + x] = static_cast<uint8_t>(texture_in[y * dim_x + x]); // row-major order
+            // Find the streamline
+            std::vector<std::vector<size_t>> streamline; // (L+1) x 2 matrix
+            streamline.resize(L+1);
+
+            streamline[0] = std::vector<size_t>{i, j}; // current pixel
+
+            for (size_t k = 0; k < L; ++k) // Forward
+            {
+                float vecX = vectorField_x[j * dim_x + i];
+                float vecY = vectorField_y[j * dim_x + i];
+
+                // Divide the 'circle' around this pixel into eight segments, each one representing the angle to one of the neighbouring pixels.
+                // We can see this circle as the unit circle.
+
+                // The vector points to the neighbour on the right when the angle of the vector from the x-axis is smaller than pi/8, i.e. when x > sqrt(3)/2
+                if (vecX >= sqrt(3)/2)
+                {
+                    streamline[1 + k] = std::vector<size_t>{i+1, j};
+                }
+                // The vector points to the upper right or lower right neighbour when the angle is in between +/- pi/8 and +/- 3/8*pi.
+                else if (vecX >= 1/2)
+                {
+                    if (vecY > 0) // upper right
+                    {
+                        streamline[1 + k] = std::vector<size_t>{i+1, j+1};
+                    }
+                    else // lower right
+                    {
+                        streamline[1 + k] = std::vector<size_t>{i+1, j-1};
+                    }
+                }
+                // The vector points to the upper or lower neighbour when the angle is in between +/- 3/8*pi and +/- 5/8*pi.
+                else if (vecX >= -1/2)
+                {
+                    if (vecY > 0) // upper
+                    {
+                        streamline[1 + k] = std::vector<size_t>{i, j+1};
+                    }
+                    else // lower
+                    {
+                        streamline[1 + k] = std::vector<size_t>{i, j-1};
+                    }
+                }
+                // The vector points to the upper or lower left neighbour when the angle is in between +/- 5/8 and +/- 7/8*pi.
+                else if (vecX >= -sqrt(3)/2)
+                {
+                    if (vecY > 0) // upper left
+                    {
+                        streamline[1 + k] = std::vector<size_t>{i-1, j+1};
+                    }
+                    else // lower left
+                    {
+                        streamline[1 + k] = std::vector<size_t>{i-1, j-1};
+                    }
+                }
+                else // -1 > x > -sqrt(3)/2: the vector points to the left neighbour.
+                {
+                    streamline[1 + k] = std::vector<size_t>{i-1, j};
+                }
+            }
+
+            // Apply kernel: simple box blur, i.e. each pixel has a value equal to the average value of its neighbours.
+            float sum = 0.0F;
+            size_t count = 0;
+            for (std::vector<size_t> coordinates : streamline)
+            {
+                if (0 <= coordinates[0] && coordinates[0] < dim_x && 0 <= coordinates[1] && coordinates[1] < dim_y)
+                {
+                    sum += texture_in[coordinates[1] + coordinates[0] * dim_y]; // column-major
+                    count++;
+                }
+            }
+            newTexture[j + i * dim_y] = static_cast<uint8_t>(sum / static_cast<float>(count)); // column-major, which is needed by GLSL.
         }
     }
 

@@ -51,7 +51,7 @@ namespace interpolation
                 float w21 = (x - fx1) * (fy2 - y) / ((fx2 - fx1) * (fy2 - y));
                 float w22 = (x - fx1) * (y - fy1) / ((fx2 - fx1) * (fy2 - y));
 
-                interpolatedValues[y * xMax + x] = w11 * values[xMax * y1 + x1]
+                interpolatedValues[j * xMax + i] = w11 * values[xMax * y1 + x1]
                                                  + w12 * values[xMax * y2 + x1]
                                                  + w21 * values[xMax * y1 + x2]
                                                  + w22 * values[xMax * y2 + x2]; // Store in row-major format

@@ -1,12 +1,4 @@
 
-# class autoencoder(nn.Module):
-#     def __init__(self):
-#         super(autoencoder, self).__init__()
-#         
-#     def forward(self, x):
-#         x = self.encoder(x)
-#         x = self.decoder(x)
-#         return x
 #%%
 from sklearn import preprocessing
 from PIL import Image
@@ -27,6 +19,9 @@ with open("./mlp_img/labels.pkl", "rb") as f:
 data_loaded.shape
 #%%
 labels_loaded.shape
+#%%
+from sklearn.model_selection import train_test_split
+X_train, X_test, y_train, y_test = train_test_split(data_loaded, labels_loaded, test_size=0.33, random_state=42)
 #%%
 from pl_bolts.models.autoencoders import AE
 from typing import Optional, Tuple
@@ -109,36 +104,26 @@ class ImageSampler(pl.callbacks.Callback):
 
 #%%
 class LitAutoEncoder(pl.LightningModule):
-    """
-    >>> LitAutoEncoder()  # doctest: +ELLIPSIS +NORMALIZE_WHITESPACE
-    LitAutoEncoder(
-      (encoder): ...
-      (decoder): ...
-    )
-    """
-
     def __init__(self, hidden_dim: int = 64):
         super().__init__()
         self.encoder = nn.Sequential(
-            nn.Conv2d(441, 1024,kernel_size= 3, stride=3, padding=1),  # b, 16, 10, 10
+            nn.LazyConv2d(64,1),
             nn.ReLU(True),
-            nn.Conv2d(1024, 512, kernel_size= 3,stride=2, padding=1),  # b, 8, 3, 3
+            nn.LazyConv2d(32,1),
             nn.ReLU(True),
-            nn.Conv2d(512, 256, kernel_size = 3, stride=2, padding=1),  # b, 8, 3, 3
+            nn.LazyConv2d(16,1),
             nn.ReLU(True),
-            nn.Conv2d(256, 128, kernel_size=3, stride=2, padding=1),  # b, 8, 3, 3
-            nn.ReLU(True),
+            nn.LazyConv2d(8,1),
 
-
-            # nn.MaxPool2d(2, stride=1)  # b, 8, 2, 2
         )
         self.decoder = nn.Sequential(
-            nn.ConvTranspose2d(128, 512,kernel_size=3, stride=2),  # b, 16, 5, 5
+            nn.LazyConvTranspose2d(16,1),
             nn.ReLU(True),
-            nn.ConvTranspose2d(512, 1024,kernel_size=3, stride=3, padding=1),  # b, 8, 15, 15
+            nn.LazyConvTranspose2d(32,1),
             nn.ReLU(True),
-            nn.ConvTranspose2d(1024, 441, kernel_size=3, stride=2, padding=1),  # b, 1, 28, 28
-            nn.Tanh()
+            nn.LazyConvTranspose2d(64,1),
+            nn.ReLU(True),
+            nn.LazyConvTranspose2d(441,1),
         )
 
     def forward(self, x):
@@ -160,7 +145,7 @@ class LitAutoEncoder(pl.LightningModule):
         return self(x)
 
     def configure_optimizers(self):
-        optimizer = torch.optim.Adam(self.parameters(), lr=1e-3)
+        optimizer = torch.optim.Adam(self.parameters(), lr=0.0005)
         return optimizer
 
     def _prepare_batch(self, batch):
@@ -178,8 +163,8 @@ class LitAutoEncoder(pl.LightningModule):
 class MyDataModule(pl.LightningDataModule):
     def __init__(self, batch_size: int = 32):
         super().__init__()
-        dataset = TensorDataset(data_loaded, labels_loaded)
-        self.mnist_train, self.mnist_val = random_split(dataset, [29,7])
+        dataset = TensorDataset(X_train, y_train)
+        self.mnist_train, self.mnist_val = random_split(dataset, [17, 7])
         self.batch_size = batch_size
 
     def train_dataloader(self):
@@ -198,8 +183,20 @@ class MyDataModule(pl.LightningDataModule):
 dm = MyDataModule()
 model = LitAutoEncoder()
 #%%
-trainer = pl.Trainer()
-trainer.fit(model, datamodule=dm)
+trainer = pl.Trainer(
+    max_epochs = 20,
+    accelerator="gpu",
+    devices="auto",
+)
+trainer.fit(
+    model, datamodule=dm
+    )
 #%%
-trainer.validate(datamodule=dm)
+test_results = trainer.validate(datamodule=dm)
 # %%
+print(test_results)
+# %%
+ts =trainer.val_dataloaders[0]
+
+# %%
+test_output = trainer.model(ts.dataset[0][0].unsqueeze(0)).cpu().detach().numpy()

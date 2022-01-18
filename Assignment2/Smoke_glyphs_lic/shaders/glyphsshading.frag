@@ -17,5 +17,16 @@ void main()
 {
     vec3 materialColor = texture(textureSampler, value).rgb;
 
-    color = vec4(materialColor, 1.0F);
+    vec3 L = normalize(lightPosition - viewPosition);
+    vec3 N = normalize(vertNormal);
+    vec3 V = normalize(viewPosition);
+    vec3 R = normalize(2 * dot(N, L) * N - L);
+
+    // PHONG SHADING
+    vec4 ambient = materialCoefficients[0] * vec4(materialColor, 1.0F);
+    vec4 diffuse = materialCoefficients[1] * dot(L, N) * vec4(materialColor, 1.0F);
+    vec4 specular = materialCoefficients[2] * pow(dot(R, V), materialCoefficients[3]) * vec4(1.0F);
+
+    color = ambient; // + diffuse + specular;
+    color = color / color[3]; // Make sure opacity = 1.0F
 }

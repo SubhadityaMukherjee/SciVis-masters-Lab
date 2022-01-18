@@ -1,9 +1,8 @@
 #%%
+import imp
 from numpy.linalg import norm
 from tqdm import tqdm
-from numpy.random.mtrand import normal
-from labeled_data_pickle_flow import main as lbm
-from unlabeled_data_pickle_flow import main as ulbm
+from from_raw_to_pickle_mcmc import runner
 from preprocessing import *
 import numpy as np
 from sklearn.decomposition import PCA
@@ -11,7 +10,7 @@ from sklearn.decomposition import PCA
 #%%
 
 # Labelled data load
-data, names = lbm()
+data, names = runner()
 print(data.shape, len(names))
 #%%
 

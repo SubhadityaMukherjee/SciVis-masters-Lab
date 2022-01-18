@@ -145,3 +145,5 @@ cylinder*
 *.json
 labels_mc*
 *.pkl
+lightning_logs/
+lightning_logs/

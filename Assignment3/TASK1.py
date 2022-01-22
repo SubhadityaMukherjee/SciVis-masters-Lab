@@ -1,7 +1,6 @@
 #%%
 from numpy.linalg import norm
 from tqdm import tqdm
-from numpy.random.mtrand import normal
 from labeled_data_pickle_flow import main as lbm
 from unlabeled_data_pickle_flow import main as ulbm
 from preprocessing import *
@@ -84,9 +83,7 @@ sns.scatterplot(
     # alpha=0.3
 )
 plt.savefig("./outputs/pca.png")
-# #%%
-# from img_scatterplot import scatterplot_with_imgs
-# scatterplot_with_imgs(normalized_cropped_data,np.array(names), normalized_cropped_data)
+#%%
 #%%
 # TSNE
 
@@ -115,6 +112,12 @@ import umap
 um = umap.UMAP()
 projections = um.fit_transform(reshaped)
 #%%
+projections[:,0]
+#%%
+# from img_scatterplot import scatterplot_with_imgs
+# scatterplot_with_imgs(projections[:,0], projections[:,1], data)
+
+#%%
 proj = pd.DataFrame.from_records(projections)
 #%%
 
@@ -122,7 +125,6 @@ plt.figure(figsize=(16,10))
 sns.scatterplot(
     x=0, y=1,
     data = proj,
-
     hue =[x.split(" ")[-1] for x in names],
     legend="full",
     alpha=0.3
@@ -132,6 +134,6 @@ plt.savefig("./outputs/umap.png")
 #%%
 # Save data
 with open("./mlp_img/data.pkl", "wb+") as f:
-    pickle.dump(data, f)
+    pickle.dump(normalized_cropped_data, f)
 with open("./mlp_img/labels.pkl", "wb+") as f:
     pickle.dump([x.split(" ")[-1] for x in names], f)

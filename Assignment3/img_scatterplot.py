@@ -3,12 +3,12 @@ from matplotlib import pyplot as plt
 
 def scatterplot_with_imgs(x, y, data, ax=None, zoom=0.2):
     print(x.shape, y.shape, data.shape)
+    print(x[0], y[0], data.shape)
 
     vmax = data.max()
     vmin = data.min()
     print('range of data:', vmin, vmax)
     # if (dataset == "flow"):
-    vmax = 70
     print('range of colormap:', vmin, vmax)
 
     from matplotlib.offsetbox import OffsetImage, AnnotationBbox

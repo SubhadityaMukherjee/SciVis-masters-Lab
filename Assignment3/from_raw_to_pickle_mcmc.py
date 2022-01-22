@@ -43,7 +43,7 @@ def runner():
     plt.show()
     fig.savefig('examples.png', dpi=300)
 
-    labelled = False  # True
+    labelled = True  # True
     if labelled:
         # save only labelled data
         labelled_data = np.zeros((0, 50, 50))
@@ -71,6 +71,7 @@ def runner():
         pkl_file = open("mcmc_labelled_names.pkl", 'wb')
         pickle.dump(names, pkl_file, protocol=4)
         pkl_file.close
+        return labelled_data, names
     else:
         # save all data
         # input("waiting...")
@@ -84,4 +85,4 @@ def runner():
         data = pickle.load(pkl_file)
 
         print(data.shape)
-    return data, names
+        return data

@@ -10,20 +10,21 @@ from sklearn.decomposition import PCA
 #%%
 
 # Labelled data load
-data, names = runner()
-print(data.shape, len(names))
-#%%
+try:
+    data, names = runner()
 
-normalized_cropped_data, data_mean, data_std = preprocess(data, True)
+    print(data.shape, len(names))
+except:
+    data = runner()
+    print(data.shape)
+
 #%%
-print(normalized_cropped_data.shape)
-reshaped = np.einsum('ijkl->ij', normalized_cropped_data)
+print(data.shape)
+#%%
+reshaped = np.einsum('ijk -> ij', data)
 print(reshaped.shape)
 X_train_pca = reshaped.copy()
 #%%
-names[:2]
-len(names), reshaped.shape
-# %%
 pca = PCA(2)
 pca_result = pca.fit_transform(reshaped)
 pca1 = pca_result[:,0]
@@ -41,8 +42,7 @@ pca1.shape
 X_train_pca = pd.DataFrame()
 X_train_pca["pca-one"] = pca1
 X_train_pca["pca-two"] = pca2
-# X_train_pca["pca-three"] = pca3
-X_train_pca["y"] = [x.split(" ")[-1] for x in names]
+X_train_pca["y"] = names
 
 X_train_pca.head(3)
 # %%
@@ -56,7 +56,7 @@ sns.scatterplot(
     legend="full",
     # alpha=0.3
 )
-plt.savefig("./outputs/pca.png")
+plt.savefig("./outputs/pca_bonus.png")
 #%%
 # TSNE
 
@@ -77,7 +77,7 @@ sns.scatterplot(
     alpha=0.3
 )
 
-plt.savefig("./outputs/tsne.png")
+plt.savefig("./outputs/tsne_bonus.png")
 #%%
 # UMAP
 
@@ -98,10 +98,10 @@ sns.scatterplot(
     alpha=0.3
 )
 
-plt.savefig("./outputs/umap.png")
+plt.savefig("./outputs/umap_bonus.png")
 #%%
 # Save data
-with open("./mlp_img/data.pkl", "wb+") as f:
+with open("./mlp_img/data_bonus.pkl", "wb+") as f:
     pickle.dump(data, f)
-with open("./mlp_img/labels.pkl", "wb+") as f:
+with open("./mlp_img/labels_bonus.pkl", "wb+") as f:
     pickle.dump([x.split(" ")[-1] for x in names], f)

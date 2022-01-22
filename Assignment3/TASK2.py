@@ -31,15 +31,15 @@ from keras import regularizers
 x_train, x_test, Y_train, Y_test = train_test_split(data_loaded, labels_loaded, test_size=0.33, random_state=42)
 x_train = x_train.astype('float32') / 255.
 x_test = x_test.astype('float32') / 255.
-x_train = x_train.reshape((len(x_train), np.prod(x_train.shape[1:])))
-x_test = x_test.reshape((len(x_test), np.prod(x_test.shape[1:])))
-x_train = np.reshape(x_train, (1, 1, 3, -1))
-x_test = np.reshape(x_test, (1, 1, 3, -1))
+# x_train = x_train.reshape((len(x_train), np.prod(x_train.shape[1:])))
+# x_test = x_test.reshape((len(x_test), np.prod(x_test.shape[1:])))
+x_train = np.reshape(x_train, ( -1, 84, 1))
+x_test = np.reshape(x_test, ( -1, 84, 1))
 print(x_train.shape)
 print(x_test.shape)
 #%%
 
-input_img = keras.Input(shape=(1, 3, x_train.shape[-1]))
+input_img = keras.Input(shape=(-1, x_train.shape[-2], 1))
 
 x = layers.Conv2D(64, (3, 3), activation='relu', padding='same')(input_img)
 # x = layers.MaxPooling2D((2, 2), padding='same')(x)
@@ -62,7 +62,7 @@ decoded = layers.Dense(x_train.shape[-1] , activity_regularizer=regularizers.l1(
 autoencoder = keras.Model(input_img, decoded)
 encoder = keras.Model(input_img, encoded)
 #%%
-encoded_input = keras.Input(shape=(1, 1, 2))
+encoded_input = keras.Input(shape=x_train.shape)
 decoder_layer = autoencoder.layers[-1]
 decoder = keras.Model(encoded_input, decoder_layer(encoded_input))
 

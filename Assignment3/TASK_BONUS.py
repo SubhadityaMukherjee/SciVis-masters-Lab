@@ -105,3 +105,4 @@ with open("./mlp_img/data_bonus.pkl", "wb+") as f:
     pickle.dump(data, f)
 with open("./mlp_img/labels_bonus.pkl", "wb+") as f:
     pickle.dump([x.split(" ")[-1] for x in names], f)
+# %%

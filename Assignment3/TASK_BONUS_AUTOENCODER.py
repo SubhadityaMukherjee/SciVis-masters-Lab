@@ -6,10 +6,10 @@ from PIL import Image
 import numpy as np
 import pickle
 #%%
-with open("./mlp_img/data.pkl", "rb") as f:
+with open("./mlp_img/data_bonus.pkl", "rb") as f:
     data_loaded = pickle.load(f)
 
-with open("./mlp_img/labels.pkl", "rb") as f:
+with open("./mlp_img/labels_bonus.pkl", "rb") as f:
     names_li = pickle.load(f)
     le = preprocessing.LabelEncoder()
     le.fit(names_li)
@@ -36,8 +36,8 @@ print(x_train.shape, x_test.shape)
 
 class Autoencoder():
     def __init__(self):
-        self.img_rows = 309
-        self.img_cols = 84
+        self.img_rows = 50
+        self.img_cols = 50
         self.channels = 1
         self.img_shape = (self.img_rows, self.img_cols, self.channels)
         
